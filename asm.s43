@@ -12,11 +12,11 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
+        db      0xff, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
 runningInDebugger 
         db      0
 progCount
-        db      1                       ;testing
+        db      0                       ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode 
         db      0
 
@@ -31,13 +31,13 @@ main:   NOP                             ; main program
         
         MOV.W   #cpuRAM, R7             ; guardar pointer a principio de RAM
 
-        ALIGN   1
-        bic.w   0xFFFF, R8            ; R8 -> IR     
-        bic.w   0xFFFF, R9
-        bic.w   0xFFFF, R10
-        bic.w   0xFFFF, R11
-        bic.w   0xFFFF, R12
-        bic.w   0xFFFF, R13
+        clr     R8 
+        clr     R9
+        clr     R10
+        clr     R11
+        clr     R12
+        clr     R13
+
         CALL    #fetch
         CALL    #decode
         CALL    R9
@@ -52,18 +52,17 @@ main:   NOP                             ; main program
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; R10-R13 -> R0-R3 para CPURUM
 
-fetch:
-        mov.b   progCount(R7), R8               ;move instruction to R8 (IR) 
-        ;swpb    R8                     ;switching bytes
-        
-        ;ram[1] -> 0x003f
-        add     1, progCount
+fetch:        ;TODO: progCount doesn't increment properly, consider replacing
+
+        mov.b   progCount(R7), R8       ;move instruction to R8 (IR) 
+        add     #1, progCount                   
         
         ret
         
-                                        ;decode by adding total
-decode:                                 ;argument esta en R8
-        cmp     0x00, R8 ;basura
+                                        
+decode:                                 ;decode by adding total
+        jmp     found30                 ;basura, only for TESTING                 
+        cmp     #0x00, R8               ;basura
         jeq     foundLoad
         
 foundLoad:
@@ -107,13 +106,12 @@ recieveInput:
 output: 
         ret
 jumpIf30:
-        cmp.w   0x0000, R0                              ;program counter  
+        cmp     #0x0000, R13        
         jeq     is30
         ret
 is30:
-        pop.w   R5
-        bic.w   0xFFFF, R5
-        ;pon address en R0
-        mov     0xFFFF, R0
-                                             
+        ;change progcount value to value in address
+        bic.w   #0xFFF0, R8 
+        mov     R8, progCount
+        ret
         END
