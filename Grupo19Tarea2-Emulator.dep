@@ -1,39 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
     <fileVersion>5</fileVersion>
-    <fileChecksum>4045242611</fileChecksum>
+    <fileChecksum>2871738055</fileChecksum>
     <configuration>
         <name>Debug</name>
         <outputs>
-            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
             <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
-            <file>$TOOLKIT_DIR$\inc\msp430f149.h</file>
-            <file>$PROJ_DIR$\asm.s43</file>
+            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
             <file>$PROJ_DIR$\Debug\List\Grupo19Tarea2-Emulator.map</file>
-            <file>$TOOLKIT_DIR$\config\linker\lnk430f149.xcl</file>
+            <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
+            <file>$PROJ_DIR$\asm.s43</file>
+            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
+            <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
         </outputs>
-        <file>
-            <name>[ROOT_NODE]</name>
-            <outputs>
-                <tool>
-                    <name>XLINK</name>
-                    <file> 2 5</file>
-                </tool>
-            </outputs>
-        </file>
         <file>
             <name>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</name>
             <outputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 5</file>
+                    <file> 2</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 6 1</file>
+                    <file> 6 3</file>
                 </tool>
             </inputs>
         </file>
@@ -42,19 +33,31 @@
             <outputs>
                 <tool>
                     <name>A430</name>
-                    <file> 1</file>
+                    <file> 3</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>A430</name>
-                    <file> 0 3</file>
+                    <file> 1 5</file>
                 </tool>
             </inputs>
+        </file>
+        <file>
+            <name>[ROOT_NODE]</name>
+            <outputs>
+                <tool>
+                    <name>XLINK</name>
+                    <file> 0 2</file>
+                </tool>
+            </outputs>
         </file>
         <forcedrebuild>
             <name>[MULTI_TOOL]</name>
             <tool>XLINK</tool>
+        </forcedrebuild>
+        <forcedrebuild>
+            <name>[REBUILD_ALL]</name>
         </forcedrebuild>
     </configuration>
     <configuration>

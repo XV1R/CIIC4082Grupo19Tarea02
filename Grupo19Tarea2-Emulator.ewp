@@ -88,7 +88,7 @@
                 </option>
                 <option>
                     <name>OGChipSelectMenu</name>
-                    <state>MSP430F149	MSP430F149</state>
+                    <state>MSP430FR6989	MSP430FR6989</state>
                 </option>
                 <option>
                     <name>GStackHeapOverride</name>
@@ -201,7 +201,7 @@
                 </option>
                 <option>
                     <name>Math description</name>
-                    <state></state>
+                    <state>Default variants of cos, sin, tan, log, log10, pow, and exp.</state>
                 </option>
                 <option>
                     <name>GESupportFrwp</name>
@@ -351,7 +351,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state></state>
+                    <state>$FILE_BNAME$.r43</state>
                 </option>
                 <option>
                     <name>CCLibConfigHeader</name>
@@ -700,7 +700,7 @@
             <data>
                 <extensions></extensions>
                 <cmdline></cmdline>
-                <hasPrio>0</hasPrio>
+                <hasPrio>144</hasPrio>
                 <buildSequence>inputOutputBased</buildSequence>
             </data>
         </settings>
@@ -725,7 +725,7 @@
                 </option>
                 <option>
                     <name>OutputFile</name>
-                    <state>templproj.d43</state>
+                    <state>Grupo19Tarea2-Emulator.d43</state>
                 </option>
                 <option>
                     <name>OutputFormat</name>
