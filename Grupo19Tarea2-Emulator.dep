@@ -5,14 +5,29 @@
     <configuration>
         <name>Debug</name>
         <outputs>
-            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
-            <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
-            <file>$PROJ_DIR$\asm.s43</file>
-            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
             <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
+            <file>$PROJ_DIR$\asm.s43</file>
+            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
+            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
+            <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
             <file>$PROJ_DIR$\Debug\List\Grupo19Tarea2-Emulator.map</file>
             <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
         </outputs>
+        <file>
+            <name>$PROJ_DIR$\asm.s43</name>
+            <outputs>
+                <tool>
+                    <name>A430</name>
+                    <file> 0</file>
+                </tool>
+            </outputs>
+            <inputs>
+                <tool>
+                    <name>A430</name>
+                    <file> 2 3</file>
+                </tool>
+            </inputs>
+        </file>
         <file>
             <name>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</name>
             <outputs>
@@ -24,22 +39,7 @@
             <inputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 6 4</file>
-                </tool>
-            </inputs>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\asm.s43</name>
-            <outputs>
-                <tool>
-                    <name>A430</name>
-                    <file> 4</file>
-                </tool>
-            </outputs>
-            <inputs>
-                <tool>
-                    <name>A430</name>
-                    <file> 0 3</file>
+                    <file> 6 0</file>
                 </tool>
             </inputs>
         </file>
@@ -48,7 +48,7 @@
             <outputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 1 5</file>
+                    <file> 4 5</file>
                 </tool>
             </outputs>
         </file>
