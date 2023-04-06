@@ -457,9 +457,94 @@ storeR2:
 endStore:
         ret
         
-
+;R5 -> destination register
+;R6 -> Register to add
 addRegisters:
+        ;first determine which is destination register
+        cmp.b   #0x00, R5
+        jeq     addR0GetSS
+        cmp.b   #0x10, R5 
+        jeq      addR1GetSS
+        cmp.b   #0x20, R5
+        jeq     addR2GetSS
+        jmp     addR3GetSS
+addR0GetSS:
+        cmp.b   #0x00, R6
+        jeq     addR0R0
+        cmp.b   #0x04, R6
+        jeq     addR0R1
+        cmp.b   #0x08, R6 
+        jeq     addR0R2 
+        jmp     addR0R3
+addR1GetSS:
+        cmp.b   #0x00, R6
+        jeq     addR1R0
+        cmp.b   #0x04, R6
+        jeq     addR1R1
+        cmp.b   #0x08, R6 
+        jeq     addR1R2 
+        jmp     addR1R3
+addR2GetSS:
+        cmp.b   #0x00, R6
+        jeq     addR2R0
+        cmp.b   #0x04, R6
+        jeq     addR2R1
+        cmp.b   #0x08, R6 
+        jeq     addR2R2 
+        jmp     addR2R3
+addR3GetSS:
+        cmp.b   #0x00, R6
+        jeq     addR3R0
+        cmp.b   #0x04, R6
+        jeq     addR3R1
+        cmp.b   #0x08, R6 
+        jeq     addR3R2 
+        jmp     addR3R3
+addR0R0:                        ;do nothing bc R0 is always 0
+addR0R1:
+addR0R2:
+addR0R3:                        ;add src, dst
+        clr     R10 
+        jmp     endAdd
+addR1R0:
+        add.b   R10, R11 
+        jmp     endAdd
+addR1R1:
+        add.b   R11, R11 
+        jmp     endAdd
+addR1R2:
+        add.b   R12, R11 
+        jmp     endAdd      
+addR1R3:
+        add.b   R13, R11 
+        jmp     endAdd
+addR2R0:
+        add.b   R10, R12 
+        jmp     endAdd
+addR2R1:
+        add.b   R11, R12 
+        jmp     endAdd
+addR2R2:
+        add.b   R12, R12 
+        jmp     endAdd
+addR2R3:
+        add.b   R13, R12 
+        jmp     endAdd
+addR3R0:
+        add.b   R10, R13 
+        jmp     endAdd
+addR3R1:
+        add.b   R11, R13 
+        jmp     endAdd
+addR3R2:
+        add.b   R12, R13 
+        jmp     endAdd
+addR3R3:
+        add.b   R13, R13 
+endAdd:
         ret
+        
+        
 negate:
         ret
 shiftRight:

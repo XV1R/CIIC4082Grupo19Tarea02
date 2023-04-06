@@ -12,6 +12,7 @@
             <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
             <file>$PROJ_DIR$\Debug\List\Grupo19Tarea2-Emulator.map</file>
             <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
+            <file>$TOOLKIT_DIR$\inc\msp430f149.h</file>
         </outputs>
         <file>
             <name>$PROJ_DIR$\asm.s43</name>
