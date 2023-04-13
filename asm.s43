@@ -616,12 +616,6 @@ addR3R3:
         add.b   R13, R13 
 endAdd:
         ret
-        
-        
-negate:
-        ret
-shiftRight:
-        ret
 
 recieveInput: 
               mov.b   #00000010b, &0xA22
@@ -662,10 +656,8 @@ notinputR2:   cmp.b #00000011, R5
               jne notinputR3
               mov.b R4, R13
 notinputR3:   mov.b #00000000b, &0xA22
-              reti
- 
-output: 
-        ret
+              ret
+              
 jumpIf30:
         cmp     #0x0000, R13        
         jeq     is30
@@ -676,3 +668,66 @@ is30:
         mov     R8, progCount
         ret
         END
+  
+negate:
+        cmp.b   #0x01, R5
+        jeq     negateR1
+        cmp.b   #0x02, R5
+        jeq     negateR2
+        cmp.b   #0x03, R5
+        jeq     negateR3
+        ret
+        
+negateR1:
+        inv R11
+        inc R11
+        ret
+        
+negateR2:
+        inv R13
+        inc R13
+        ret
+        
+negateR3:
+        inv R13
+        inc R13
+        ret
+        
+shiftRight:       
+        cmp.b   #0x01, R5
+        jeq     shiftRightR1
+        cmp.b   #0x02, R5
+        jeq     shiftRightR2
+        cmp.b   #0x03, R5
+        jeq     shiftRightR3:
+        ret       
+        
+shiftRightR1:
+        rra R11
+        ret
+        
+shiftRightR2:
+        rra R12
+        ret
+        
+shiftRightR3:
+        rra R13
+        ret
+
+output: 
+
+//mov 0xFC,  /* "0" */
+//mov 0x60,  /* "1" */
+//mov 0xDB,  /* "2" */
+//mov 0xF3,  /* "3" */
+//mov 0x67,  /* "4" */
+//mov 0xB7,  /* "5" */
+//mov 0xBF,  /* "6" */
+//mov 0xE4,  /* "7" */
+//mov 0xFF,  /* "8" */
+//mov 0xF7   /* "9" */
+        
+        add #0x20, R14
+        mov.b @R[ss], &r14
+        ret
+
