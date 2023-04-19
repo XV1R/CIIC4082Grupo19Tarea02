@@ -418,10 +418,41 @@ fetch:        ;TODO: progCount doesn't increment properly, consider replacing
         ret
         
                                         
-decode:                                 ;decode by adding total
-        jmp     found30                 ;basura, only for TESTING                 
-        cmp     #0x00, R8               ;basura
-        jeq     foundLoad
+decode: 
+
+          mov.w   R8, R5                   ; Load mask into register
+          bic.b   #00111111b, R5           ; Test bits 15-14 of the opcode
+          cmp.b   #00000000b, R5           ;clear to check the bit that indicate the instruction
+          jeq     foundLoad
+          cmp.b   #01000000b, R5
+          jeq     foundStore
+          cmp.b   #10000000b, R5
+          jeq     foundAdd
+          cmp.b   #11000000b, R5
+          jeq     instruction11xx          ;para los bit de 11
+
+instruction11xx:
+
+          mov.w   R8, R5                   ; Load mask into register
+          bic.b   #00001111b, R5           ;clear to check the bit that indicate the instruction
+          cmp.b   #11100000b, R5
+          jeq     foundOut
+          cmp.b   #11110000b, R5
+          jeq     found30
+          cmp.b   #11000000b, R5
+          jeq     instruction1100xx        ;brincar para las instrucciones de que son idicados con 6 bits 
+
+instruction1100xx:
+        
+          mov.w   R8, R5                   ; Load mask into register
+          bic.b   #00000011b, R5           ;clear to check the bit that indicate the instruction
+          cmp.b   #11000000b, R5
+          jeq     foundNeg
+          cmp.b   #11000100b, R5
+          jeq     foundShr
+          cmp.b   #11001100b, R5
+          jeq     foundIn
+        
 foundLoad:                              ;load address data in reg
         mov.b   R8, R5
         mov.b   R8, R6 
@@ -656,7 +687,7 @@ notinputR2:   cmp.b #00000011, R5
               jne notinputR3
               mov.b R4, R13
 notinputR3:   mov.b #00000000b, &0xA22
-              ret
+              reti
               
 jumpIf30:
         cmp     #0x0000, R13        
