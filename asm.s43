@@ -109,10 +109,10 @@ UnlockGPIO:
                                         ; so that the micro reacts to 
                                         ; interrupts
         nop
-        ;bis     #GIE+LPM0, SR
+        ;bis.w     #GIE+LPM0, SR
         nop                             ; Wait after setting interrupt bit
 
-;        bis     #LPM0,SR                ; Enter Low Power Mode 0
+        ;bis     #LPM0,SR                ; Enter Low Power Mode 0
         nop
         
 
@@ -155,7 +155,7 @@ loopover:                               ; stuck in looping names
         jne     loopover
 
 startProgram:
-        bic.b   #00000110B, &P1IE
+        bic.b   #00000110B, &P1IE       ;masks interrupts 
         bic.b   #02h, &P1IES
         
         nop
@@ -273,7 +273,7 @@ P1int:
         mov.b   #1, start
         mov.b   start, R6
         
-        reti    
+      reti    
         
 endint:
       
@@ -478,12 +478,12 @@ foundAdd:                               ;add two registers together
 foundNeg:                               ;negate one register
         mov.b   R8, R5
         bic.b   #11111100b, R5          ;first arg  (register)
-        mov     #negate, R9
+        mov.w   #negate, R9
         jmp     exitDecode
 foundShr:                               ;shift register right
         mov.b   R8, R5 
         bic.b   #11111100b, R5          ;first arg (register)
-        mov     #shiftRight, R9
+        mov.w   #shiftRight, R9
         jmp     exitDecode
 foundIn:
         mov.b   R8, R5 
@@ -507,7 +507,6 @@ exitDecode:
 
 
 execute:                                ;always assume that instr in R8
-
         call    R9
 endExecute:
         ret 
@@ -698,7 +697,6 @@ is30:
         bic.w   #0xFFF0, R8 
         mov     R8, progCount
         ret
-        END
   
 negate:
         cmp.b   #0x01, R5
@@ -730,7 +728,7 @@ shiftRight:
         cmp.b   #0x02, R5
         jeq     shiftRightR2
         cmp.b   #0x03, R5
-        jeq     shiftRightR3:
+        jeq     shiftRightR3
         ret       
         
 shiftRightR1:
@@ -759,6 +757,11 @@ output:
 //mov 0xF7   /* "9" */
         
         add #0x20, R14
-        mov.b @R[ss], &r14
+        ;mov.b @R[ss], &r14
         ret
+        
+        
+        
+        END
+
 
