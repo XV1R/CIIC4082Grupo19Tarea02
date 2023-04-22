@@ -743,8 +743,215 @@ shiftRightR3:
         rra R13
         ret
 
-output: 
+outputBI:
+      mov.b   R8, R5
+      mov.b   #0 , R6    ; even positions
+      mov.b   #0 , R14   ; odd positions
+      bic.b   #11111110b, R5
+      cmp.b   #00000001b, R5
+      jeq.b   #addeven1
+      
+addeven1:
+      add.b R6, #00010000
+      ret
+addeven2:
+      add.b R6, #00100000
+      ret
+addeven3:
+      add.b R6, #01000000
+      ret
+addeven4:
+      add.b R6, #10000000
+      ret
+addodd1:
+      add.b R6, #00000001
+      ret
+addodd2:
+      add.b R6, #00000010
+      ret
+addodd3:
+      add.b R6, #00000100
+      ret
+addodd4:
+      add.b R6, #00001000
+      ret
 
+outputHEX: 
+
+       mov.b   R8, R5
+       mov.b   R8, R6
+       bic.b   #11110000b, R5 
+       cmp.b   #00000000b,R5
+       jeq.b   hexout0R
+       cmp.b   #00000001b,R5
+       jeq.b   hexout1R
+       cmp.b   #00000010b,R5
+       jeq.b   hexout2R
+       cmp.b   #00000011b,R5
+       jeq.b   hexout3R
+       cmp.b   #00000100b,R5
+       jeq.b   hexout4R
+       cmp.b   #00000101b,R5
+       jeq.b   hexout5R
+       cmp.b   #00000110b,R5
+       jeq.b   hexout6R
+       cmp.b   #00000111b,R5
+       jeq.b   hexout7R
+       cmp.b   #00001000b,R5
+       jeq.b   hexout8R
+       cmp.b   #00001001b,R5
+       jeq.b   hexout9R
+       cmp.b   #00001010b,R5
+       jeq.b   hexoutAR
+       cmp.b   #00001011b,R5
+       jeq.b   hexoutBR
+       cmp.b   #00001100b,R5
+       jeq.b   hexoutCR
+       cmp.b   #00001101b,R5
+       jeq.b   hexoutDR
+       cmp.b   #00001110b,R5
+       jeq.b   hexoutER
+       cmp.b   #00001111b,R5
+       jeq.b   hexoutFR 
+       
+       bic.b   #00001111b,R6 
+       cmp.b   #00000000b,R6
+       jeq.b   hexout0L
+       cmp.b   #00010000b,R6
+       jeq.b   hexout1L
+       cmp.b   #00100000b,R6
+       jeq.b   hexout2L
+       cmp.b   #00110000b,R6
+       jeq.b   hexout3L
+       cmp.b   #01000000b,R6
+       jeq.b   hexout4L
+       cmp.b   #01010000b,R6
+       jeq.b   hexout5L
+       cmp.b   #01100000b,R6
+       jeq.b   hexout6L
+       cmp.b   #01110000b,R6
+       jeq.b   hexout7L
+       cmp.b   #10000000b,R6
+       jeq.b   hexout8L
+       cmp.b   #10010000b,R6
+       jeq.b   hexout9L
+       cmp.b   #10100000b,R6
+       jeq.b   hexoutAL
+       cmp.b   #10110000b,R6
+       jeq.b   hexoutBL
+       cmp.b   #11000000b,R6
+       jeq.b   hexoutCL
+       cmp.b   #11010000b,R6
+       jeq.b   hexoutDL
+       cmp.b   #11100000b,R6
+       jeq.b   hexoutEL
+       cmp.b   #11110000b,R6
+       jeq.b   hexoutFL
+
+
+hexout0R:
+     mov.b    #0xFC, &0xA27 ; DISPLAY 0  
+     ret
+hexout1R:
+     mov.b    #0x60, &0xA27 ; DISPLAY 0  
+     ret   
+hexout2R:
+     mov.b    #0xDB, &0xA27 ; DISPLAY 0  
+     ret
+hexout3R:
+     mov.b    #0xF3, &0xA27 ; DISPLAY 0  
+     ret
+hexout4R:
+     mov.b    #0x67, &0xA27 ; DISPLAY 0  
+     ret
+hexout5R:
+     mov.b    #0xB7, &0xA27 ; DISPLAY 0  
+     ret
+hexout6R:
+     mov.b    #0xBF, &0xA27 ; DISPLAY 0  
+     ret
+hexout7R:
+     mov.b    #0xE4, &0xA27 ; DISPLAY 0  
+     ret
+hexout8R:
+     mov.b    #0xFF, &0xA27 ; DISPLAY 0  
+     ret
+hexout9R:
+     mov.b    #0xF7, &0xA27 ; DISPLAY 0  
+     ret
+hexoutAR:
+     mov.b    #0xEF, &0xA27 ; DISPLAY 0  
+     ret
+hexoutBR:
+     mov.b    #0xF1, &0xA27 ; DISPLAY 0  
+     mov.b    #0x50, &0xA28
+     ret
+hexoutCR:
+     mov.b    #0x9C, &0xA27 ; DISPLAY 0  
+     ret
+hexoutDR:
+     mov.b    #0xF0, &0xA27 ; DISPLAY 0  
+     mov.b    #0x50, &0xA28 
+     ret
+hexoutER:
+     mov.b    #0x9E, &0xA27 ; DISPLAY 0  
+     ret
+hexoutFR:
+     mov.b    #0x8E, &0xA27 ; DISPLAY 0  
+     ret
+    
+hexout0L:
+     mov.b    #0xFC, &0xA2E ; DISPLAY 0  
+     ret
+hexout1L:
+     mov.b    #0x60, &0xA2E ; DISPLAY 0  
+     ret   
+hexout2L:
+     mov.b    #0xDB, &0xA2E ; DISPLAY 0  
+     ret
+hexout3L:
+     mov.b    #0xF3, &0xA2E ; DISPLAY 0  
+     ret
+hexout4L:
+     mov.b    #0x67, &0xA2E ; DISPLAY 0  
+     ret
+hexout5L
+     mov.b    #0xB7, &0xA2E ; DISPLAY 0  
+     ret
+hexout6L:
+     mov.b    #0xBF, &0xA2E ; DISPLAY 0  
+     ret
+hexout7L:
+     mov.b    #0xE4, &0xA2E ; DISPLAY 0  
+     ret
+hexout8L:
+     mov.b    #0xFF, &0xA2E ; DISPLAY 0  
+     ret
+hexout9L:
+     mov.b    #0xF7, &0xA2E ; DISPLAY 0  
+     ret
+hexoutAL:
+     mov.b    #0xEF, &0xA2E ; DISPLAY 0  
+     ret
+hexoutBL:
+     mov.b    #0xF1, &0xA2E ; DISPLAY 0  
+     mov.b    #0x50, &0xA2F
+     ret
+hexoutCL:
+     mov.b    #0x9C, &0xA2E ; DISPLAY 0  
+     ret
+hexoutDL:
+     mov.b    #0xF0, &0xA2E ; DISPLAY 0  
+     mov.b    #0x50, &0xA2F 
+     ret
+hexoutEL:
+     mov.b    #0x9E, &0xA2E ; DISPLAY 0  
+     ret
+hexoutFL:
+     mov.b    #0x8E, &0xA2E ; DISPLAY l 
+     ret
+
+     
 //mov 0xFC,  /* "0" */
 //mov 0x60,  /* "1" */
 //mov 0xDB,  /* "2" */
@@ -755,10 +962,33 @@ output:
 //mov 0xE4,  /* "7" */
 //mov 0xFF,  /* "8" */
 //mov 0xF7   /* "9" */
+//mov 0xEF,  /* "A" */
+//mov 0xF1,  /* "B" */    
+//mov 0x50,  /* "B" */ 
+//mov 0x9C,  /* "C" */
+//mov 0xF0,  /* "D" */
+//mov 0x50   /* "D" */
+//mov 0x9E,  /* "E" */
+//mov 0x8E,  /* "F" */
+
         
-        add #0x20, R14
-        ;mov.b @R[ss], &r14
-        ret
+        
+outR1:
+       
+       
+       mov.b    
+       ret
+       
+outR2:
+
+       mov.b
+       ret
+       
+outR3:
+
+       mov.b
+       ret 
+        
         
         
         
