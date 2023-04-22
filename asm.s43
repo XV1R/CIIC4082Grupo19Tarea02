@@ -21,9 +21,9 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0xff, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
+        db      0xe6, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
 runningInDebugger
-        db      0
+        db      1
 progCount
         db      0                       ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
