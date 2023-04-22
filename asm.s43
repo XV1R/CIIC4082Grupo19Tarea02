@@ -997,16 +997,98 @@ hexoutEL:
      mov.b    #0x9E, &0xA2E ; DISPLAY 0
      ret
 hexoutFL:
-     mov.b    #0x8E, &0xA2E ; DISPLAY l
+     mov.b    #0x8E, &0xA2E ; DISPLAY F
      ret
+
+
+
+outputDEC:
+      ; R15 is the number to be displayed
+      ; R6 for result
+      ; R5 copy of result
+
+      mov.b R15, R5
+      call #mod10
+      ; R5 has the mod (reminder) and R6 has the result (quoatient)
+      call #printdigitdec1  ; from right to left
+
+      mov.b R6, R5
+      call #mod10
+      ; R5 has the mod (reminder) and R6 has the result (quoatient)
+      call #printdigitdec2
+
+      mov.b R6, R5
+      call #mod10
+      ; R5 has the mod (reminder) and R6 has the result (quoatient)
+      call #printdigitdec3
+
+mod10:
+      ; R15 is the number to be displayed
+      ; R6 for result
+      ; R14 shift needed
+       clr R6
+       mov.b R14, #10100000b
+       call #checkGE
+
+       mov.b R14, #01010000b
+       call #checkGE
+
+       mov.b R14, #00101000b
+       call #checkGE
+
+       mov.b R14, #00010100b
+       call #checkGE
+
+       mov.b R14, #00001010b
+       call #checkGE
+
+       ret
+       ; R5 is the result of the mod
+
+checkGE:
+     cmp.b R5, R14
+     JGE greaterDiv
+     JL  lesserDiv
+
+greaterDiv:
+     sub.b R5, R14
+     setc
+     rlc R6, 1
+     ret
+lesserDiv:
+     clrc
+     rlc R6, 1
+     ret
+
+printdigitdec1:
+       cmp.b   #00000000b,R5
+       jeq     decout1num0
+       cmp.b   #00000001b,R5
+       jeq     decout1num1
+       cmp.b   #00000010b,R5
+       jeq     decout1num2
+       cmp.b   #00000011b,R5
+       jeq     decout1num3
+       cmp.b   #00000100b,R5
+       jeq     decout1num4
+       cmp.b   #00000101b,R5
+       jeq     decout1num5
+       cmp.b   #00000110b,R5
+       jeq     decout1num6
+       cmp.b   #00000111b,R5
+       jeq     decout1num7
+       cmp.b   #00001000b,R5
+       jeq     decout1num8
+       cmp.b   #00001001b,R5
+       jeq     decout1num9
 
 outR1:
        mov.b R1, R15
        cmp.b #00000000b, R6
        jeq   outputHEX
-       cmp.b #00000001b,R6
+       cmp.b #00000001b, R6
        jeq   outputBI
-       cmp.b #00000010b,R6
+       cmp.b #00000010b, R6
        jeq   outputDEC
 
        ret
@@ -1015,9 +1097,9 @@ outR2:
        mov.b R2, R15
        cmp.b #00000000b, R6
        jeq   outputHEX
-       cmp.b #00000001b,R6
+       cmp.b #00000001b, R6
        jeq   outputBI
-       cmp.b #00000010b,R6
+       cmp.b #00000010b, R6
        jeq   outputDEC
        ret
 
