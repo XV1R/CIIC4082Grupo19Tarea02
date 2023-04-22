@@ -751,6 +751,37 @@ output:
         cmp.b   #00001100b, R5
         jeq     outR3
         ret
+        
+outR1:
+       mov.b R1, R15
+       cmp.b #00000000b, R6
+       jeq   outputHEX
+       cmp.b #00000001b, R6
+       jeq   outputBI
+       cmp.b #00000010b, R6
+       jeq   outputDEC
+
+       ret
+
+outR2:
+       mov.b R2, R15
+       cmp.b #00000000b, R6
+       jeq   outputHEX
+       cmp.b #00000001b, R6
+       jeq   outputBI
+       cmp.b #00000010b, R6
+       jeq   outputDEC
+       ret
+
+outR3:
+       mov.b R3, R15
+       cmp.b #00000000b, R6
+       jeq   outputHEX
+       cmp.b #00000001b, R6
+       jeq   outputBI
+       cmp.b #00000010b, R6
+       jeq   outputDEC
+       ret
 
 outputBI:
       mov.b   #0 , R6    ; even positions
@@ -802,205 +833,210 @@ outputBI:
       ret
 
 addeven1:
-      add.b R6, #00010000b
+      add.b R6, 00010000b
       ret
 addeven2:
-      add.b R6, #00100000b
+      add.b R6, 00100000b
       ret
 addeven3:
-      add.b R6, #01000000b
+      add.b R6, 01000000b
       ret
 addeven4:
-      add.b R6, #10000000b
+      add.b R6, 10000000b
       ret
 addodd1:
-      add.b R14, #0001000b
+      add.b R14, 00010000b
       ret
 addodd2:
-      add.b R14, #00100000b
+      add.b R14, 00100000b
       ret
 addodd3:
-      add.b R14, #01000000b
+      add.b R14, 01000000b
       ret
 addodd4:
-      add.b R14, #10000000b
+      add.b R14, 10000000b
       ret
 
 outputHEX:
        mov.b   R15, R5
        mov.b   R15, R6
        bic.b   #11110000b, R5
+       call    #hexRight
+       bic.b   #00001111b,R6
+       call    #hexLeft
+       
+hexRight:   
        cmp.b   #00000000b,R5
-       call    #hexout0R
+       jeq     hexout0R
        cmp.b   #00000001b,R5
-       call    #hexout1R
+       jeq     hexout1R
        cmp.b   #00000010b,R5
-       call    #hexout2R
+       jeq     hexout2R
        cmp.b   #00000011b,R5
-       call    #hexout3R
+       jeq     hexout3R
        cmp.b   #00000100b,R5
-       call    #hexout4R
+       jeq     hexout4R
        cmp.b   #00000101b,R5
-       call    #hexout5R
+       jeq     hexout5R
        cmp.b   #00000110b,R5
-       call    #hexout6R
+       jeq     hexout6R
        cmp.b   #00000111b,R5
-       call    #hexout7R
+       jeq     hexout7R
        cmp.b   #00001000b,R5
-       call    #hexout8R
+       jeq     hexout8R
        cmp.b   #00001001b,R5
-       call    #hexout9R
+       jeq     hexout9R
        cmp.b   #00001010b,R5
-       call    #hexoutAR
+       jeq     hexoutAR
        cmp.b   #00001011b,R5
-       call    #hexoutBR
+       jeq     hexoutBR
        cmp.b   #00001100b,R5
-       call    #hexoutCR
+       jeq     hexoutCR
        cmp.b   #00001101b,R5
-       call    #hexoutDR
+       jeq     hexoutDR
        cmp.b   #00001110b,R5
-       call    #hexoutER
+       jeq     hexoutER
        cmp.b   #00001111b,R5
-       call    #hexoutFR
+       jeq     hexoutFR
+       
 
+hexLeft:      
        bic.b   #00001111b,R6
        cmp.b   #00000000b,R6
-       call    #hexout0L
+       jeq     hexout0L
        cmp.b   #00010000b,R6
-       call    #hexout1L
+       jeq     hexout1L
        cmp.b   #00100000b,R6
-       call    #hexout2L
+       jeq     hexout2L
        cmp.b   #00110000b,R6
-       call    #hexout3L
+       jeq     hexout3L
        cmp.b   #01000000b,R6
-       call    #hexout4L
+       jeq     hexout4L
        cmp.b   #01010000b,R6
-       call    #hexout5L
+       jeq     hexout5L
        cmp.b   #01100000b,R6
-       call    #hexout6L
+       jeq     hexout6L
        cmp.b   #01110000b,R6
-       call    #hexout7L
+       jeq     hexout7L
        cmp.b   #10000000b,R6
-       call    #hexout8L
+       jeq     hexout8L
        cmp.b   #10010000b,R6
-       call    #hexout9L
+       jeq     hexout9L
        cmp.b   #10100000b,R6
-       call    #hexoutAL
+       jeq     hexoutAL
        cmp.b   #10110000b,R6
-       call    #hexoutBL
+       jeq     hexoutBL
        cmp.b   #11000000b,R6
-       call    #hexoutCL
+       jeq     hexoutCL
        cmp.b   #11010000b,R6
-       call    #hexoutDL
+       jeq     hexoutDL
        cmp.b   #11100000b,R6
-       call    #hexoutEL
+       jeq     hexoutEL
        cmp.b   #11110000b,R6
-       call    #hexoutFL
+       jeq     hexoutFL
 
 
 hexout0R:
      mov.b    #0xFC, &0xA27 ; DISPLAY 0
      ret
 hexout1R:
-     mov.b    #0x60, &0xA27 ; DISPLAY 0
+     mov.b    #0x60, &0xA27 ; DISPLAY 1
      ret
 hexout2R:
-     mov.b    #0xDB, &0xA27 ; DISPLAY 0
+     mov.b    #0xDB, &0xA27 ; DISPLAY 2
      ret
 hexout3R:
-     mov.b    #0xF3, &0xA27 ; DISPLAY 0
+     mov.b    #0xF3, &0xA27 ; DISPLAY 3
      ret
 hexout4R:
-     mov.b    #0x67, &0xA27 ; DISPLAY 0
+     mov.b    #0x67, &0xA27 ; DISPLAY 4
      ret
 hexout5R:
-     mov.b    #0xB7, &0xA27 ; DISPLAY 0
+     mov.b    #0xB7, &0xA27 ; DISPLAY 5
      ret
 hexout6R:
-     mov.b    #0xBF, &0xA27 ; DISPLAY 0
+     mov.b    #0xBF, &0xA27 ; DISPLAY 6
      ret
 hexout7R:
-     mov.b    #0xE4, &0xA27 ; DISPLAY 0
+     mov.b    #0xE4, &0xA27 ; DISPLAY 7
      ret
 hexout8R:
-     mov.b    #0xFF, &0xA27 ; DISPLAY 0
+     mov.b    #0xFF, &0xA27 ; DISPLAY 8
      ret
 hexout9R:
-     mov.b    #0xF7, &0xA27 ; DISPLAY 0
+     mov.b    #0xF7, &0xA27 ; DISPLAY 9
      ret
 hexoutAR:
-     mov.b    #0xEF, &0xA27 ; DISPLAY 0
+     mov.b    #0xEF, &0xA27 ; DISPLAY A
      ret
 hexoutBR:
-     mov.b    #0xF1, &0xA27 ; DISPLAY 0
+     mov.b    #0xF1, &0xA27 ; DISPLAY B
      mov.b    #0x50, &0xA28
      ret
 hexoutCR:
-     mov.b    #0x9C, &0xA27 ; DISPLAY 0
+     mov.b    #0x9C, &0xA27 ; DISPLAY C
      ret
 hexoutDR:
-     mov.b    #0xF0, &0xA27 ; DISPLAY 0
+     mov.b    #0xF0, &0xA27 ; DISPLAY D
      mov.b    #0x50, &0xA28
      ret
 hexoutER:
-     mov.b    #0x9E, &0xA27 ; DISPLAY 0
+     mov.b    #0x9E, &0xA27 ; DISPLAY E
      ret
 hexoutFR:
-     mov.b    #0x8E, &0xA27 ; DISPLAY 0
+     mov.b    #0x8E, &0xA27 ; DISPLAY F
      ret
 
 hexout0L:
      mov.b    #0xFC, &0xA2E ; DISPLAY 0
      ret
 hexout1L:
-     mov.b    #0x60, &0xA2E ; DISPLAY 0
+     mov.b    #0x60, &0xA2E ; DISPLAY 1
      ret
 hexout2L:
-     mov.b    #0xDB, &0xA2E ; DISPLAY 0
+     mov.b    #0xDB, &0xA2E ; DISPLAY 2
      ret
 hexout3L:
-     mov.b    #0xF3, &0xA2E ; DISPLAY 0
+     mov.b    #0xF3, &0xA2E ; DISPLAY 3
      ret
 hexout4L:
-     mov.b    #0x67, &0xA2E ; DISPLAY 0
+     mov.b    #0x67, &0xA2E ; DISPLAY 4
      ret
 hexout5L
-     mov.b    #0xB7, &0xA2E ; DISPLAY 0
+     mov.b    #0xB7, &0xA2E ; DISPLAY 5
      ret
 hexout6L:
-     mov.b    #0xBF, &0xA2E ; DISPLAY 0
+     mov.b    #0xBF, &0xA2E ; DISPLAY 6
      ret
 hexout7L:
-     mov.b    #0xE4, &0xA2E ; DISPLAY 0
+     mov.b    #0xE4, &0xA2E ; DISPLAY 7
      ret
 hexout8L:
-     mov.b    #0xFF, &0xA2E ; DISPLAY 0
+     mov.b    #0xFF, &0xA2E ; DISPLAY 8
      ret
 hexout9L:
-     mov.b    #0xF7, &0xA2E ; DISPLAY 0
+     mov.b    #0xF7, &0xA2E ; DISPLAY 9
      ret
 hexoutAL:
-     mov.b    #0xEF, &0xA2E ; DISPLAY 0
+     mov.b    #0xEF, &0xA2E ; DISPLAY A
      ret
 hexoutBL:
-     mov.b    #0xF1, &0xA2E ; DISPLAY 0
+     mov.b    #0xF1, &0xA2E ; DISPLAY B
      mov.b    #0x50, &0xA2F
      ret
 hexoutCL:
-     mov.b    #0x9C, &0xA2E ; DISPLAY 0
+     mov.b    #0x9C, &0xA2E ; DISPLAY C
      ret
 hexoutDL:
-     mov.b    #0xF0, &0xA2E ; DISPLAY 0
+     mov.b    #0xF0, &0xA2E ; DISPLAY D
      mov.b    #0x50, &0xA2F
      ret
 hexoutEL:
-     mov.b    #0x9E, &0xA2E ; DISPLAY 0
+     mov.b    #0x9E, &0xA2E ; DISPLAY E
      ret
 hexoutFL:
      mov.b    #0x8E, &0xA2E ; DISPLAY F
      ret
-
-
 
 outputDEC:
       ; R15 is the number to be displayed
@@ -1027,19 +1063,19 @@ mod10:
       ; R6 for result
       ; R14 shift needed
        clr R6
-       mov.b R14, #10100000b
+       mov.b R14, 10100000b
        call #checkGE
 
-       mov.b R14, #01010000b
+       mov.b R14, 01010000b
        call #checkGE
 
-       mov.b R14, #00101000b
+       mov.b R14, 00101000b
        call #checkGE
 
-       mov.b R14, #00010100b
+       mov.b R14, 00010100b
        call #checkGE
 
-       mov.b R14, #00001010b
+       mov.b R14, 00001010b
        call #checkGE
 
        ret
@@ -1053,11 +1089,11 @@ checkGE:
 greaterDiv:
      sub.b R5, R14
      setc
-     rlc R6, 1
+     rlc R6
      ret
 lesserDiv:
      clrc
-     rlc R6, 1
+     rlc R6
      ret
 
 printdigitdec1:
@@ -1081,39 +1117,142 @@ printdigitdec1:
        jeq     decout1num8
        cmp.b   #00001001b,R5
        jeq     decout1num9
+       
+printdigitdec2:
+       cmp.b   #00000000b,R5
+       jeq     decout2num0
+       cmp.b   #00000001b,R5
+       jeq     decout2num1
+       cmp.b   #00000010b,R5
+       jeq     decout2num2
+       cmp.b   #00000011b,R5
+       jeq     decout2num3
+       cmp.b   #00000100b,R5
+       jeq     decout2num4
+       cmp.b   #00000101b,R5
+       jeq     decout2num5
+       cmp.b   #00000110b,R5
+       jeq     decout2num6
+       cmp.b   #00000111b,R5
+       jeq     decout2num7
+       cmp.b   #00001000b,R5
+       jeq     decout2num8
+       cmp.b   #00001001b,R5
+       jeq     decout2num9
 
-outR1:
-       mov.b R1, R15
-       cmp.b #00000000b, R6
-       jeq   outputHEX
-       cmp.b #00000001b, R6
-       jeq   outputBI
-       cmp.b #00000010b, R6
-       jeq   outputDEC
+printdigitdec3:
+       cmp.b   #00000000b,R5
+       jeq     decout3num0
+       cmp.b   #00000001b,R5
+       jeq     decout3num1
+       cmp.b   #00000010b,R5
+       jeq     decout3num2
+       cmp.b   #00000011b,R5
+       jeq     decout3num3
+       cmp.b   #00000100b,R5
+       jeq     decout3num4
+       cmp.b   #00000101b,R5
+       jeq     decout3num5
+       cmp.b   #00000110b,R5
+       jeq     decout3num6
+       cmp.b   #00000111b,R5
+       jeq     decout3num7
+       cmp.b   #00001000b,R5
+       jeq     decout3num8
+       cmp.b   #00001001b,R5
+       jeq     decout3num9
+       
+decout1num0:
+     mov.b    #0xFC, &0xA23 ; DISPLAY 0
+     ret
+decout1num1:
+     mov.b    #0x60, &0xA23 ; DISPLAY 0
+     ret
+decout1num2:
+     mov.b    #0xDB, &0xA23 ; DISPLAY 0
+     ret
+decout1num3:
+     mov.b    #0xF3, &0xA23 ; DISPLAY 0
+     ret
+decout1num4:
+     mov.b    #0x67, &0xA23 ; DISPLAY 0
+     ret
+decout1num5:
+     mov.b    #0xB7, &0xA23 ; DISPLAY 0
+     ret
+decout1num6:
+     mov.b    #0xBF, &0xA23 ; DISPLAY 0
+     ret
+decout1num7:
+     mov.b    #0xE4, &0xA23 ; DISPLAY 0
+     ret
+decout1num8:
+     mov.b    #0xFF, &0xA23 ; DISPLAY 0
+     ret
+decout1num9:
+     mov.b    #0xF7, &0xA23 ; DISPLAY 0
+     ret
+     
+decout2num0:
+     mov.b    #0xFC, &0xA25 ; DISPLAY 0
+     ret
+decout2num1:
+     mov.b    #0x60, &0xA25 ; DISPLAY 0
+     ret
+decout2num2:
+     mov.b    #0xDB, &0xA25 ; DISPLAY 0
+     ret
+decout2num3:
+     mov.b    #0xF3, &0xA25 ; DISPLAY 0
+     ret
+decout2num4:
+     mov.b    #0x67, &0xA25 ; DISPLAY 0
+     ret
+decout2num5:
+     mov.b    #0xB7, &0xA25 ; DISPLAY 0
+     ret
+decout2num6:
+     mov.b    #0xBF, &0xA25 ; DISPLAY 0
+     ret
+decout2num7:
+     mov.b    #0xE4, &0xA25 ; DISPLAY 0
+     ret
+decout2num8:
+     mov.b    #0xFF, &0xA25 ; DISPLAY 0
+     ret
+decout2num9:
+     mov.b    #0xF7, &0xA25 ; DISPLAY 0
+     ret
 
-       ret
-
-outR2:
-       mov.b R2, R15
-       cmp.b #00000000b, R6
-       jeq   outputHEX
-       cmp.b #00000001b, R6
-       jeq   outputBI
-       cmp.b #00000010b, R6
-       jeq   outputDEC
-       ret
-
-outR3:
-       mov.b R3, R15
-       cmp.b #00000000b, R6
-       jeq   outputHEX
-       cmp.b #00000001b, R6
-       jeq   outputBI
-       cmp.b #00000010b, R6
-       jeq   outputDEC
-       ret
-
-
-
+decout3num0:
+     mov.b    #0xFC, &0xA25 ; DISPLAY 0
+     ret
+decout3num1:
+     mov.b    #0x60, &0xA25 ; DISPLAY 0
+     ret
+decout3num2:
+     mov.b    #0xDB, &0xA25 ; DISPLAY 0
+     ret
+decout3num3:
+     mov.b    #0xF3, &0xA25 ; DISPLAY 0
+     ret
+decout3num4:
+     mov.b    #0x67, &0xA25 ; DISPLAY 0
+     ret
+decout3num5:
+     mov.b    #0xB7, &0xA25 ; DISPLAY 0
+     ret
+decout3num6:
+     mov.b    #0xBF, &0xA25 ; DISPLAY 0
+     ret
+decout3num7:
+     mov.b    #0xE4, &0xA25 ; DISPLAY 0
+     ret
+decout3num8:
+     mov.b    #0xFF, &0xA25 ; DISPLAY 0
+     ret
+decout3num9:
+     mov.b    #0xF7, &0xA25 ; DISPLAY 0
+     ret
 
         END
