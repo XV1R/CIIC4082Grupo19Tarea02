@@ -5,11 +5,11 @@
     <configuration>
         <name>Debug</name>
         <outputs>
-            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
-            <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
-            <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
             <file>$TOOLKIT_DIR$\inc\msp430.h</file>
             <file>$PROJ_DIR$\asm.s43</file>
+            <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
+            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
+            <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
             <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
             <file>$PROJ_DIR$\Debug\List\Grupo19Tarea2-Emulator.map</file>
         </outputs>
@@ -18,13 +18,13 @@
             <outputs>
                 <tool>
                     <name>A430</name>
-                    <file> 1</file>
+                    <file> 4</file>
                 </tool>
             </outputs>
             <inputs>
                 <tool>
                     <name>A430</name>
-                    <file> 3 0</file>
+                    <file> 0 3</file>
                 </tool>
             </inputs>
         </file>
@@ -39,7 +39,7 @@
             <inputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 2 1</file>
+                    <file> 2 4</file>
                 </tool>
             </inputs>
         </file>

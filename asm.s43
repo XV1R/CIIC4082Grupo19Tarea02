@@ -43,6 +43,8 @@ instCounter dw 0
 
 instrIn db 0
 
+delayCounter db 62500
+
         RSEG    CSTACK                  ; pre-declaration of segment
         RSEG    CODE                    ; place program in 'CODE' segment
 
@@ -162,8 +164,8 @@ startProgram:
         ;bis     #GIE+LPM0, SR
         ;nop
 
-        mov.b #00000001B, R5
-        call #recieveInput
+        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
+        call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
         MOV.W   #cpuRAM, R7             ; guardar pointer a principio de RAM
@@ -189,23 +191,23 @@ startProgram:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 TIMER_A0_ISR:
-        xor.b #BIT7, P9OUT
-        mov.b instCounter, R13
+        ;xor.b #BIT7, P9OUT
+        ;mov.b instCounter, R13
 
-        cmp #5, instCounter
-        jnz noToggle
+        ;cmp #5, instCounter
+        ;jnz noToggle
 
-        mov #0, instCounter
+        ;mov #0, instCounter
         ;mov.b instCounter, R4
 
-        cmp.b #1, instrIn
-        jeq readInput
+        ;cmp.b #1, instrIn
+        ;jeq readInput
 
         reti
 
 noToggle:
         ;mov.b instCounter, R4
-        inc instCounter
+        ;inc instCounter
 fin:
         ;xor 	#CCIE, &TA0CCTL0
         reti
@@ -647,46 +649,43 @@ addR3R3:
 endAdd:
         ret
 
+
 recieveInput:
               mov.b   #00000010b, &0xA22
               cmp.b   #1, runningInDebugger
               jeq     readInput
-              mov.b   #1, instrIn
               mov.b   #0, instCounter
-loopIn:       cmp.b   #0, instrIn
-              jne loopIn
+              mov #62500, delayCounter
+delay:
+              dec delayCounter
+              cmp #0, delayCounter
+              jne delay
+              inc.b instCounter
+              mov.b &P1IN, R4
+loopIn:       cmp.b   #5, instCounter
+              jne delay
+              call #readInput
               ret
 
-readInput:    ;mov.b #00000001b, R5
-              xor   #CCIE, &TA0CCTL0
-              mov.b #0, instrIn
-              mov.b &P1IN, R4
-              and.b #00000110B, R4
-              cmp.b #00000000B, R4
-              jne verifyP1
-              mov.b #00000011B, R4
-verifyP1:     cmp.b #00000100B, R4
-              jne verifyP2
-              mov.b #00000001B, R4
-verifyP2:     cmp.b #00000010B, R4
-              jne noInput
-              mov.b #00000010B, R4
-
-noInput:      cmp.b #00000001, R5
+readInput:    
+              ;mov.b &P1IN, R4
+              rra R4
+              
+              cmp.b #00000001, R5
               jne notinputR1
               mov.b R4, R11
               mov.b #00000000b, &0xA22
-              reti
+              ret
 notinputR1:   cmp.b #00000010, R5
               jne notinputR2
               mov.b R4, R12
               mov.b #00000000b, &0xA22
-              reti
+              ret
 notinputR2:   cmp.b #00000011, R5
               jne notinputR3
               mov.b R4, R13
 notinputR3:   mov.b #00000000b, &0xA22
-              reti
+              ret
 
 jumpIf30:
         cmp     #0x0000, R13
@@ -802,28 +801,28 @@ outputBI:
       ret
 
 addeven1:
-      add.b R6, #00010000b
+      ;add.b R6, #00010000b
       ret
 addeven2:
-      add.b R6, #00100000b
+      ;add.b R6, #00100000b
       ret
 addeven3:
-      add.b R6, #01000000b
+      ;add.b R6, #01000000b
       ret
 addeven4:
-      add.b R6, #10000000b
+      ;add.b R6, #10000000b
       ret
 addodd1:
-      add.b R14, #0001000b
+      ;add.b R14, #0001000b
       ret
 addodd2:
-      add.b R14, #00100000b
+      ;add.b R14, #00100000b
       ret
 addodd3:
-      add.b R14, #01000000b
+      ;add.b R14, #01000000b
       ret
 addodd4:
-      add.b R14, #10000000b
+      ;add.b R14, #10000000b
       ret
 
 outputHEX:
@@ -1007,7 +1006,7 @@ outR1:
        cmp.b #00000001b,R6
        jeq   outputBI
        cmp.b #00000010b,R6
-       jeq   outputDEC
+       ;jeq   outputDEC
 
        ret
 
@@ -1018,7 +1017,7 @@ outR2:
        cmp.b #00000001b,R6
        jeq   outputBI
        cmp.b #00000010b,R6
-       jeq   outputDEC
+       ;jeq   outputDEC
        ret
 
 outR3:
@@ -1028,7 +1027,7 @@ outR3:
        cmp.b #00000001b, R6
        jeq   outputBI
        cmp.b #00000010b, R6
-       jeq   outputDEC
+       ;jeq   outputDEC
        ret
 
 
