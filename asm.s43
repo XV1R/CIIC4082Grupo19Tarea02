@@ -21,7 +21,7 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0x20, 0x6f, 0xea, 0xcf, 0xf4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        db      0x22, 01101111b, 0xc2, 0xc7, 0xcd, 0xe8, 00110010b, 11101110b, 00111110b, 11111001b, 0, 0, 0, 0, 0, 0
 progCount             db      0 
 timeoftimer           db      0
 runningInDebugger     db      0
@@ -177,8 +177,8 @@ fetchloop:
         CALL    #fetch
         CALL    #decode
         CALL    #execute
-        cmp.b   #3, progCount     ; testing...
-        jeq $
+        ;cmp.b   #3, progCount     ; testing...
+        ;jeq $
         cmp.b   #16, progCount
         jeq $
         jmp     fetchloop
@@ -676,13 +676,13 @@ notinputR3:   mov.b #00000000b, &0xA22
               ret
 
 jumpIf30:
-        cmp     #0x0000, R13
+        cmp.b   #0x0000, R13
         jeq     is30
         ret
 is30:
         ;change progCount value to value in address
-        bic.w   #0xFFF0, R8
-        mov     R8, progCount
+        bic.b   #0xF0, R8
+        mov.b   R8, progCount
         ret
 
 negate:
@@ -700,8 +700,8 @@ negateR1:
         ret
 
 negateR2:
-        inv R13
-        inc R13
+        inv R12
+        inc R12
         ret
 
 negateR3:
