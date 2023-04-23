@@ -37,7 +37,7 @@ begin   db      0
 
 counter db      1
 
-p1counter db    0
+p1counter db    1
 
 instrIn db 0
 
@@ -89,9 +89,6 @@ UnlockGPIO:
         mov     #0x0, &TA0CCR0
 
 	nop
-        
-        call    #clearDisplay
-        call    #cpurum
         
         bic.b   #0xFF,&P1SEL0           ; Set PxSel0 and PxSel1 to digital I/O
         bic.b   #0xFF,&P1SEL1           ; Digital I/O is the default
@@ -270,7 +267,7 @@ endAll:
 
 endint:
 
-      mov.b     #0, p1counter
+      mov.b     #0, R4
       call    #clearDisplay
       call    #cpurum
       reti
