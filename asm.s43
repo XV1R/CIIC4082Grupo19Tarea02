@@ -136,7 +136,7 @@ main:   NOP                             ; main program
 
         MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
 
-        mov.b &P1IN, R4
+        ;mov.b &P1IN, R4       
 
         mov.w #0, instCounter
 
@@ -152,6 +152,9 @@ startProgram:
         bic.b   #00000110B, &P1IE       ;masks interrupts
         bic.b   #02h, &P1IES
 
+         ;mov.b #00000001B, R5
+         ;call #recieveInput  
+         
         nop
         ;bis     #GIE+LPM0, SR
         ;nop
