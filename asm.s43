@@ -23,9 +23,8 @@ cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
         db      0xee, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
 runningInDebugger
-        db      1
-progCount
-        db      0x1c00                       ;testing
+        db      0
+                    ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
 
@@ -37,13 +36,13 @@ counter db      1
 
 p1counter db    1
 
-debouncing db 500
-
-instCounter dw 0
-
 instrIn db 0
 
-delayCounter db 62500
+delayCounter dw 62500
+
+debouncing dw 500
+
+instCounter dw 0
 
         RSEG    CSTACK                  ; pre-declaration of segment
         RSEG    CODE                    ; place program in 'CODE' segment
@@ -129,15 +128,44 @@ main:   NOP                             ; main program
         bis.b   #00000110B, &P1OUT            ; resistor because pushing button
                                         ; connects it to ground
 
-        bic.b #0x01, &P1OUT
-        bic.b #0x80, &P9OUT
+        bic.b   #0x01, &P1OUT
+        bic.b   #0x80, &P9OUT
+
+        mov.b   p1counter, R4
 
         bis.b   #00000110B, &P1IE             ; Enable interrupt at P1.1
         bis.b   #02h, &P1IES            ; Set interrupt on high-to-low
                                         ; transition of P1.1
-        ;mov.b &P1IN, R4
+        ; Uses SMCLK and up mode
+        ; TASSELx        MCx (mode control)                IDx (input divider)
+        ; 00 -> TACLK    00 -> Stop                        00 -> /1
+        ; 01 -> ACLK     01 -> Up mode (up to TACCR0)      01 -> /2
+        ; 10 -> SMCLK    10 -> Continuous (up to 0FFFFh)   02 -> /4
+        ; 11 -> INCLK    11 -> Up/down (top on TACCR0)     03 -> /8
 
-        mov.b #0, instCounter
+        ; period = cycles * divider / SMLCK
+        ; Assuming SMLCK = 1 MHz, divider = 8 and period = 0.5 seg
+        ; cycles = 62500.  With period = 0.5 LED turn on every 1 second
+        ;mov     #62500, &TA0CCR0        ; Set the timer capture compare register 0
+        nop                   ; the architecture
+        bis.w   #GIE,SR 	        ; Interrupts enabled (same as eint)
+                                        ; so that the micro reacts to
+                                        ; interrupts
+        nop
+        ;bis     #GIE+LPM0, SR
+        nop                             ; Wait after setting interrupt bit
+
+        ;bis     #LPM0,SR                ; Enter Low Power Mode 0
+        nop
+
+
+main:   NOP                             ; main program
+
+        MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
+
+        mov.b &P1IN, R4
+
+        mov.w #0, instCounter
 
         cmp.b #1, runningInDebugger
         jeq startProgram
@@ -160,10 +188,11 @@ startProgram:
         call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
-
-
-                
-        clr     R8
+       // clr     R4
+        clr     R5
+        clr     R6
+        clr     R7
+        clr     R8     
         clr     R9
         clr     R10
         clr     R11
@@ -184,8 +213,10 @@ fetchloop:
 
 
 PORT1_ISR
-        mov #500, debouncing
-next:   dec.b debouncing
+        mov.w #500, debouncing
+        mov.w debouncing, R5
+        
+next:   dec debouncing
         jnz next
 
         bit.b   #00000010b, &P1IFG      ; Test P1IFG to detect if there is
@@ -251,7 +282,8 @@ P1int:
 endint:
 
       mov.b     #0, p1counter
-
+      call    #clearDisplay
+      call    #cpurum
       reti
 
 clearDisplay:
@@ -628,15 +660,15 @@ recieveInput:
               mov.b   #00000010b, &0xA22
               cmp.b   #1, runningInDebugger
               jeq     readInput
-              mov.b   #0, instCounter
-              mov #62500, delayCounter
+              mov.w   #0, instCounter
+              mov.w #62500, delayCounter
 delay:
               dec delayCounter
               cmp #0, delayCounter
               jne delay
-              inc.b instCounter
+              inc instCounter
               mov.b &P1IN, R4
-loopIn:       cmp.b   #5, instCounter
+loopIn:       cmp.w   #5, instCounter
               jne delay
               call #readInput
               ret
@@ -1095,7 +1127,9 @@ outputDEC:
       ret
       
 startTimer:
-     mov   #12500, &TA0CCR0
+     mov.b  R15, timeoftimer
+     mov    #12500, &TA0CCR0
+     nop
      ret
 
 mod10:
