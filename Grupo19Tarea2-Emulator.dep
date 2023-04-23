@@ -5,28 +5,22 @@
     <configuration>
         <name>Debug</name>
         <outputs>
-            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
             <file>$PROJ_DIR$\Debug\Obj\asm.r43</file>
-            <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
-            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
-            <file>$PROJ_DIR$\asm.s43</file>
             <file>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</file>
+            <file>$PROJ_DIR$\asm.s43</file>
+            <file>$TOOLKIT_DIR$\inc\msp430.h</file>
+            <file>$TOOLKIT_DIR$\config\linker\lnk430fr6989.xcl</file>
+            <file>$TOOLKIT_DIR$\inc\msp430fr6989.h</file>
             <file>$PROJ_DIR$\Debug\List\Grupo19Tarea2-Emulator.map</file>
         </outputs>
         <file>
-            <name>$PROJ_DIR$\asm.s43</name>
+            <name>[ROOT_NODE]</name>
             <outputs>
                 <tool>
-                    <name>A430</name>
-                    <file> 1</file>
+                    <name>XLINK</name>
+                    <file> 1 6</file>
                 </tool>
             </outputs>
-            <inputs>
-                <tool>
-                    <name>A430</name>
-                    <file> 3 0</file>
-                </tool>
-            </inputs>
         </file>
         <file>
             <name>$PROJ_DIR$\Debug\Exe\Grupo19Tarea2-Emulator.d43</name>
@@ -39,18 +33,24 @@
             <inputs>
                 <tool>
                     <name>XLINK</name>
-                    <file> 2 1</file>
+                    <file> 4 0</file>
                 </tool>
             </inputs>
         </file>
         <file>
-            <name>[ROOT_NODE]</name>
+            <name>$PROJ_DIR$\asm.s43</name>
             <outputs>
                 <tool>
-                    <name>XLINK</name>
-                    <file> 5 6</file>
+                    <name>A430</name>
+                    <file> 0</file>
                 </tool>
             </outputs>
+            <inputs>
+                <tool>
+                    <name>A430</name>
+                    <file> 3 5</file>
+                </tool>
+            </inputs>
         </file>
         <forcedrebuild>
             <name>[MULTI_TOOL]</name>

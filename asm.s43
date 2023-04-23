@@ -25,7 +25,7 @@ cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
 runningInDebugger
         db      1
 progCount
-        db      0                       ;testing
+        db      0x1c00                       ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
 
@@ -78,10 +78,6 @@ UnlockGPIO:
 
 	;Turn LCD on
 	BIS.W   #1,&LCDCCTL0
-
-        ;Turn on baterry LCD
-       // mov.b   #0xFF, &0xA31
-       // mov.b   #0xFF, &0xA2D
 
         mov     #CCIE, &TA0CCTL0              ; Enable TACCR0 interrupt
         mov     #TASSEL_2+MC_1+ID_3, &TA0CTL  ;Set timer according to next table
@@ -160,33 +156,29 @@ startProgram:
 
 
 
-//        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
-//        call #recieveInput   ;FOR DEBUGGING PURPOSES
+        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
+        call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
-        MOV.W   #cpuRAM, R7             ; guardar pointer a principio de RAM
-      
-      
+
+
+                
         clr     R8
-//        clr     R9
-//        clr     R10
-//        clr     R11
-//        clr     R12
-//        clr     R13
+        clr     R9
+        clr     R10
+        clr     R11
+        clr     R12
+        clr     R13
 
+fetchloop:
         CALL    #fetch
-        mov.b   #11100110b, R8
-        mov.b   #00100000b, R11
         CALL    #decode
-        call    #clearDisplay
         CALL    #execute
-        ; will place function pointer in R9
-        ;execute instruction stored in R9 after decode
+        jmp     fetchloop
 
 
 
-
-        JMP $                           ; jump to current location '$'
+        //JMP $                           ; jump to current location '$'
                                         ; (endless loop)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -338,7 +330,7 @@ displayAngel:
       mov.b     #11101111B, &0xA29 ;A
       mov.b     #01101100B, &0xA25 ;N
       mov.b     #10000010B, &0xA26
-      mov.b     #10111111B, &0xA23 ;G
+      mov.b     #10111101B, &0xA23 ;G
       mov.b     #10011111B, &0xA32 ;E
       mov.b     #00011100B, &0xA2E ;L
       mov.b     #11111100B, &0xA27 ;O
@@ -397,11 +389,10 @@ cpurum:
 
 fetch:        ;TODO: progCount doesn't increment properly, consider replacing
 
-        mov.b   progCount(R7), R8       ;move instruction to R8 (IR)
+        mov     progCount, R7   
+        mov.b   cpuRAM(R7), R8       ;move instruction to R8 (IR)
         add     #1, progCount
-
         ret
-
 
 decode:
 
@@ -675,7 +666,7 @@ jumpIf30:
         jeq     is30
         ret
 is30:
-        ;change progcount value to value in address
+        ;change progCount value to value in address
         bic.w   #0xFFF0, R8
         mov     R8, progCount
         ret
@@ -1097,9 +1088,15 @@ outputDEC:
       call #mod10
       ; R5 has the mod (reminder) and R6 has the result (quoatient)
       call #printdigitdec3
-
-      mov   #12500, &TA0CCR0
+      
+      
+      cmp.b #0, runningInDebugger
+      jeq startTimer
       ret
+      
+startTimer:
+     mov   #12500, &TA0CCR0
+     ret
 
 mod10:
       ; R15 is the number to be displayed
