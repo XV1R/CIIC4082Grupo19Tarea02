@@ -21,11 +21,12 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0x20, 0x6f, 0xe6, 0xcf, 0xf4, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0, 0
+        db      0x20, 0x6f, 0xea, 0xcf, 0xf4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 progCount
         db      0 
+timeoftimer db  0
 runningInDebugger
-        db      0
+        db      1
                     ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
@@ -36,7 +37,7 @@ begin   db      0
 
 counter db      1
 
-p1counter db    1
+p1counter db    0
 
 debouncing db 500
 
@@ -45,6 +46,8 @@ instCounter dw 0
 instrIn db 0
 
 delayCounter db 62500
+
+
 
         RSEG    CSTACK                  ; pre-declaration of segment
         RSEG    CODE                    ; place program in 'CODE' segment
@@ -134,6 +137,8 @@ UnlockGPIO:
 
 main:   NOP                             ; main program
 
+        
+
         MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
 
         ;mov.b &P1IN, R4
@@ -148,6 +153,7 @@ loopover:                               ; stuck in looping names
         jne     loopover
 
 startProgram:
+        
         bic.b   #00000110B, &P1IE       ;masks interrupts
         bic.b   #02h, &P1IES
 
@@ -157,25 +163,32 @@ startProgram:
 
 
 
-        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
-        call #recieveInput   ;FOR DEBUGGING PURPOSES
+     //   mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
+      //  call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
-
-
-                
-        clr     R8
+        clr     R4
+        clr     R5
+        clr     R6
+        clr     R7
+        clr     R8     
         clr     R9
         clr     R10
         clr     R11
         clr     R12
         clr     R13
+        clr     R14
+        clr     R15
+       
 
 fetchloop:
         CALL    #fetch
         CALL    #decode
         CALL    #execute
+        cmp.b   #3, progCount
+        jeq $
         jmp     fetchloop
+       
 
 
 
@@ -186,7 +199,9 @@ fetchloop:
 
 PORT1_ISR
         mov #500, debouncing
-next:   dec debouncing
+        mov debouncing, R5
+        
+next:   dec.w debouncing
         jnz next
 
         bit.b   #00000010b, &P1IFG      ; Test P1IFG to detect if there is
@@ -762,6 +777,8 @@ outR3:
        ret
 
 outputBI:
+
+      call      #clearDisplay
       mov.b   #0 , R6    ; even positions
       mov.b   #0 , R14   ; odd positions
 
@@ -861,6 +878,8 @@ addodd4:
       ret
 
 outputHEX:
+
+       call      #clearDisplay 
        mov.b   R15, R5
        mov.b   R15, R6
        bic.b   #11110000b, R5
@@ -1043,10 +1062,10 @@ hexoutFL:
      ret
 
 TIMER_A0_ISR:
-    sub.b #00000001b, R15
+    sub.b #00000001b, timeoftimer
     jeq timer0
 
-    mov.b R15, R5
+    mov.b timeoftimer, R5
     
     call #mod10
     ; R5 has the mod (reminder) and R6 has the result (quoatient)
@@ -1078,7 +1097,7 @@ outputDEC:
       ; R15 is the number to be displayed
       ; R6 for result
       ; R5 copy of result
-
+      call      #clearDisplay
       mov.b R15, R5
       call #mod10
       ; R5 has the mod (reminder) and R6 has the result (quoatient)
@@ -1100,7 +1119,8 @@ outputDEC:
       ret
       
 startTimer:
-     mov   #12500, &TA0CCR0
+     mov.b  R15, timeoftimer
+     mov    #12500, &TA0CCR0
      ret
 
 mod10:
