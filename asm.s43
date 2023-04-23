@@ -90,6 +90,9 @@ UnlockGPIO:
 
 	nop
         
+        call    #clearDisplay
+        call    #cpurum
+        
         bic.b   #0xFF,&P1SEL0           ; Set PxSel0 and PxSel1 to digital I/O
         bic.b   #0xFF,&P1SEL1           ; Digital I/O is the default
         bic.b   #0xFF,&P9SEL0
