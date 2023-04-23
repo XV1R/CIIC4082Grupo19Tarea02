@@ -21,7 +21,10 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0xee, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
+        db      0x20, 0x6f, 0xea, 0xcf, 0xf4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+progCount
+        db      0 
+timeoftimer db  0
 runningInDebugger
         db      0
                     ;testing
@@ -34,7 +37,7 @@ begin   db      0
 
 counter db      1
 
-p1counter db    1
+p1counter db    0
 
 instrIn db 0
 
@@ -43,6 +46,8 @@ delayCounter dw 62500
 debouncing dw 500
 
 instCounter dw 0
+
+
 
         RSEG    CSTACK                  ; pre-declaration of segment
         RSEG    CODE                    ; place program in 'CODE' segment
@@ -84,36 +89,7 @@ UnlockGPIO:
         mov     #0x0, &TA0CCR0
 
 	nop
-        ; Uses SMCLK and up mode
-        ; TASSELx        MCx (mode control)                IDx (input divider)
-        ; 00 -> TACLK    00 -> Stop                        00 -> /1
-        ; 01 -> ACLK     01 -> Up mode (up to TACCR0)      01 -> /2
-        ; 10 -> SMCLK    10 -> Continuous (up to 0FFFFh)   02 -> /4
-        ; 11 -> INCLK    11 -> Up/down (top on TACCR0)     03 -> /8
-
-        ; period = cycles * divider / SMLCK
-        ; Assuming SMLCK = 1 MHz, divider = 8 and period = 0.5 seg
-        ; cycles = 62500.  With period = 0.5 LED turn on every 1 second
-        ;mov     #62500, &TA0CCR0        ; Set the timer capture compare register 0
-                              ; the architecture
-        bis.w   #GIE,SR 	        ; Interrupts enabled (same as eint)
-                                        ; so that the micro reacts to
-                                        ; interrupts
-        nop
-        ;bis     #GIE+LPM0, SR
-        nop                             ; Wait after setting interrupt bit
-
-        ;bis     #LPM0,SR                ; Enter Low Power Mode 0
-        nop
-
-
-main:   NOP                             ; main program
-
-        MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
-
-        call    #clearDisplay
-        call    #cpurum
-
+        
         bic.b   #0xFF,&P1SEL0           ; Set PxSel0 and PxSel1 to digital I/O
         bic.b   #0xFF,&P1SEL1           ; Digital I/O is the default
         bic.b   #0xFF,&P9SEL0
@@ -132,6 +108,8 @@ main:   NOP                             ; main program
         bic.b   #0x80, &P9OUT
 
         mov.b   p1counter, R4
+
+        mov.b p1counter, R4
 
         bis.b   #00000110B, &P1IE             ; Enable interrupt at P1.1
         bis.b   #02h, &P1IES            ; Set interrupt on high-to-low
@@ -175,6 +153,7 @@ loopover:                               ; stuck in looping names
         jne     loopover
 
 startProgram:
+        
         bic.b   #00000110B, &P1IE       ;masks interrupts
         bic.b   #02h, &P1IES
 
@@ -184,11 +163,11 @@ startProgram:
 
 
 
-        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
-        call #recieveInput   ;FOR DEBUGGING PURPOSES
+     //   mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
+      //  call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
-       // clr     R4
+        clr     R4
         clr     R5
         clr     R6
         clr     R7
@@ -198,12 +177,18 @@ startProgram:
         clr     R11
         clr     R12
         clr     R13
+        clr     R14
+        clr     R15
+       
 
 fetchloop:
         CALL    #fetch
         CALL    #decode
         CALL    #execute
+        cmp.b   #3, progCount
+        jeq $
         jmp     fetchloop
+       
 
 
 
@@ -258,11 +243,11 @@ noStart:
 P1int:
         bic.b   #00000110b, &P1IFG      ; Clear interrupt flag and check
 
-        cmp.b   #1, p1counter
+        cmp.b   #1, R4
         jeq     endint
 
         cmp.b   #1, begin
-        jeq     endint
+        jeq     endAll
 
         call    #clearDisplay
 
@@ -277,6 +262,9 @@ P1int:
         mov.b   #1, start
         mov.b   start, R6
 
+      reti
+
+endAll:
       reti
 
 endint:
@@ -421,9 +409,9 @@ cpurum:
 
 fetch:        ;TODO: progCount doesn't increment properly, consider replacing
 
-        mov     progCount, R7   
-        mov.b   cpuRAM(R7), R8       ;move instruction to R8 (IR)
-        add     #1, progCount
+        mov.b     progCount, R7   
+        mov.b     cpuRAM(R7), R8       ;move instruction to R8 (IR)
+        add       #1, progCount
         ret
 
 decode:
@@ -532,16 +520,16 @@ load:
         cmp.b   #0x20, R5
         jeq     loadR2
         ;we don't need the last compare, means it'll be R3
-        mov     cpuRAM(R6), R13
+        mov.b     cpuRAM(R6), R13
         jmp     endLoad
 loadR0:                                 ;R0 is always 0
         clr     R10
         jmp     endLoad
 loadR1:
-        mov     cpuRAM(R6), R11
+        mov.b     cpuRAM(R6), R11
         jmp     endLoad
 loadR2:
-        mov     cpuRAM(R6), R12
+        mov.b     cpuRAM(R6), R12
 endLoad:
         ret
 
@@ -555,16 +543,16 @@ store:
         cmp.b   #0x20, R5
         jeq     storeR2
         ;we don't need the last compare, means it'll be R3
-        mov     R13, cpuRAM(R6)
+        mov.b     R13, cpuRAM(R6)
         jmp     endStore
 storeR0:
-        mov     R10, cpuRAM(R6)
+        mov.b     R10, cpuRAM(R6)
         jmp     endStore
 storeR1:
-        mov     R11, cpuRAM(R6)
+        mov.b     R11, cpuRAM(R6)
         jmp     endStore
 storeR2:
-        mov     R12, cpuRAM(R6)
+        mov.b     R12, cpuRAM(R6)
 endStore:
         ret
 
@@ -674,7 +662,7 @@ loopIn:       cmp.w   #5, instCounter
               ret
 
 readInput:
-              ;mov.b &P1IN, R4
+              mov.b &P1IN, R4
               rra R4
 
               cmp.b #00000001, R5
@@ -789,6 +777,8 @@ outR3:
        ret
 
 outputBI:
+
+      call      #clearDisplay
       mov.b   #0 , R6    ; even positions
       mov.b   #0 , R14   ; odd positions
 
@@ -888,6 +878,8 @@ addodd4:
       ret
 
 outputHEX:
+
+       call      #clearDisplay 
        mov.b   R15, R5
        mov.b   R15, R6
        bic.b   #11110000b, R5
@@ -1070,10 +1062,10 @@ hexoutFL:
      ret
 
 TIMER_A0_ISR:
-    sub.b #00000001b, R15
+    sub.b #00000001b, timeoftimer
     jeq timer0
 
-    mov.b R15, R5
+    mov.b timeoftimer, R5
     
     call #mod10
     ; R5 has the mod (reminder) and R6 has the result (quoatient)
@@ -1105,7 +1097,7 @@ outputDEC:
       ; R15 is the number to be displayed
       ; R6 for result
       ; R5 copy of result
-
+      call      #clearDisplay
       mov.b R15, R5
       call #mod10
       ; R5 has the mod (reminder) and R6 has the result (quoatient)
@@ -1269,33 +1261,43 @@ decout1num9:
 
 decout2num0:
      mov.b    #0xFC, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num1:
      mov.b    #0x60, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num2:
      mov.b    #0xDB, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num3:
      mov.b    #0xF3, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num4:
      mov.b    #0x67, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num5:
      mov.b    #0xB7, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num6:
      mov.b    #0xBF, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num7:
      mov.b    #0xE4, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num8:
      mov.b    #0xFF, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num9:
      mov.b    #0xF7, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 
 decout3num0:
