@@ -175,8 +175,8 @@ startProgram:
 //        clr     R13
 
         CALL    #fetch
-//        mov.b   #11100101b, R8
-//        mov.b   #00111111b, R11
+        mov.b   #11100110b, R8
+        mov.b   #00100000b, R11
         CALL    #decode
         call    #clearDisplay
         CALL    #execute
@@ -1048,9 +1048,10 @@ hexoutFL:
 
 TIMER_A0_ISR:
     sub.b #00000001b, R15
-    call #outputDEC
+    jeq timer0
 
     mov.b R15, R5
+    
     call #mod10
     ; R5 has the mod (reminder) and R6 has the result (quoatient)
     call #printdigitdec1  ; from right to left
@@ -1064,14 +1065,16 @@ TIMER_A0_ISR:
     call #mod10
     ; R5 has the mod (reminder) and R6 has the result (quoatient)
     call #printdigitdec3
-    
-    cmp.b #00000000, R15
-    jeq timer0
-
+   
     reti
 
 timer0:
     mov   #0, &TA0CCR0
+    mov   MC_0, &TA0CTL
+    mov.b #0x00, R5
+    call #decout1num0
+    call #decout2num0
+    call #decout3num0
     reti
     
 
