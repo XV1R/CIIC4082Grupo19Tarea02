@@ -21,11 +21,12 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0xee, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
+        db      0x20, 0x6f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0, 0
+progCount
+        db      0 
 runningInDebugger
         db      1
-progCount
-        db      0x1c00                       ;testing
+                    ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
 
@@ -389,9 +390,9 @@ cpurum:
 
 fetch:        ;TODO: progCount doesn't increment properly, consider replacing
 
-        mov     progCount, R7   
-        mov.b   cpuRAM(R7), R8       ;move instruction to R8 (IR)
-        add     #1, progCount
+        mov.b     progCount, R7   
+        mov.b     cpuRAM(R7), R8       ;move instruction to R8 (IR)
+        add       #1, progCount
         ret
 
 decode:
@@ -500,16 +501,16 @@ load:
         cmp.b   #0x20, R5
         jeq     loadR2
         ;we don't need the last compare, means it'll be R3
-        mov     cpuRAM(R6), R13
+        mov.b     cpuRAM(R6), R13
         jmp     endLoad
 loadR0:                                 ;R0 is always 0
         clr     R10
         jmp     endLoad
 loadR1:
-        mov     cpuRAM(R6), R11
+        mov.b     cpuRAM(R6), R11
         jmp     endLoad
 loadR2:
-        mov     cpuRAM(R6), R12
+        mov.b     cpuRAM(R6), R12
 endLoad:
         ret
 
@@ -523,16 +524,16 @@ store:
         cmp.b   #0x20, R5
         jeq     storeR2
         ;we don't need the last compare, means it'll be R3
-        mov     R13, cpuRAM(R6)
+        mov.b     R13, cpuRAM(R6)
         jmp     endStore
 storeR0:
-        mov     R10, cpuRAM(R6)
+        mov.b     R10, cpuRAM(R6)
         jmp     endStore
 storeR1:
-        mov     R11, cpuRAM(R6)
+        mov.b     R11, cpuRAM(R6)
         jmp     endStore
 storeR2:
-        mov     R12, cpuRAM(R6)
+        mov.b     R12, cpuRAM(R6)
 endStore:
         ret
 
@@ -1235,33 +1236,43 @@ decout1num9:
 
 decout2num0:
      mov.b    #0xFC, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num1:
      mov.b    #0x60, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num2:
      mov.b    #0xDB, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num3:
      mov.b    #0xF3, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num4:
      mov.b    #0x67, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num5:
      mov.b    #0xB7, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num6:
      mov.b    #0xBF, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num7:
      mov.b    #0xE4, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num8:
      mov.b    #0xFF, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 decout2num9:
      mov.b    #0xF7, &0xA25 ; DISPLAY 0
+     mov.b    #0x01, &0xA26 ; POINT
      ret
 
 decout3num0:
