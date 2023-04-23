@@ -25,7 +25,7 @@ cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
 progCount
         db      0 
 runningInDebugger
-        db      1
+        db      0
                     ;testing
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
@@ -86,36 +86,7 @@ UnlockGPIO:
         mov     #0x0, &TA0CCR0
 
 	nop
-        ; Uses SMCLK and up mode
-        ; TASSELx        MCx (mode control)                IDx (input divider)
-        ; 00 -> TACLK    00 -> Stop                        00 -> /1
-        ; 01 -> ACLK     01 -> Up mode (up to TACCR0)      01 -> /2
-        ; 10 -> SMCLK    10 -> Continuous (up to 0FFFFh)   02 -> /4
-        ; 11 -> INCLK    11 -> Up/down (top on TACCR0)     03 -> /8
-
-        ; period = cycles * divider / SMLCK
-        ; Assuming SMLCK = 1 MHz, divider = 8 and period = 0.5 seg
-        ; cycles = 62500.  With period = 0.5 LED turn on every 1 second
-        ;mov     #62500, &TA0CCR0        ; Set the timer capture compare register 0
-                              ; the architecture
-        bis.w   #GIE,SR 	        ; Interrupts enabled (same as eint)
-                                        ; so that the micro reacts to
-                                        ; interrupts
-        nop
-        ;bis     #GIE+LPM0, SR
-        nop                             ; Wait after setting interrupt bit
-
-        ;bis     #LPM0,SR                ; Enter Low Power Mode 0
-        nop
-
-
-main:   NOP                             ; main program
-
-        MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
-
-        call    #clearDisplay
-        call    #cpurum
-
+        
         bic.b   #0xFF,&P1SEL0           ; Set PxSel0 and PxSel1 to digital I/O
         bic.b   #0xFF,&P1SEL1           ; Digital I/O is the default
         bic.b   #0xFF,&P9SEL0
@@ -133,9 +104,38 @@ main:   NOP                             ; main program
         bic.b #0x01, &P1OUT
         bic.b #0x80, &P9OUT
 
+        mov.b p1counter, R4
+
         bis.b   #00000110B, &P1IE             ; Enable interrupt at P1.1
         bis.b   #02h, &P1IES            ; Set interrupt on high-to-low
                                         ; transition of P1.1
+        ; Uses SMCLK and up mode
+        ; TASSELx        MCx (mode control)                IDx (input divider)
+        ; 00 -> TACLK    00 -> Stop                        00 -> /1
+        ; 01 -> ACLK     01 -> Up mode (up to TACCR0)      01 -> /2
+        ; 10 -> SMCLK    10 -> Continuous (up to 0FFFFh)   02 -> /4
+        ; 11 -> INCLK    11 -> Up/down (top on TACCR0)     03 -> /8
+
+        ; period = cycles * divider / SMLCK
+        ; Assuming SMLCK = 1 MHz, divider = 8 and period = 0.5 seg
+        ; cycles = 62500.  With period = 0.5 LED turn on every 1 second
+        ;mov     #62500, &TA0CCR0        ; Set the timer capture compare register 0
+        nop                   ; the architecture
+        bis.w   #GIE,SR 	        ; Interrupts enabled (same as eint)
+                                        ; so that the micro reacts to
+                                        ; interrupts
+        nop
+        ;bis     #GIE+LPM0, SR
+        nop                             ; Wait after setting interrupt bit
+
+        ;bis     #LPM0,SR                ; Enter Low Power Mode 0
+        nop
+
+
+main:   NOP                             ; main program
+
+        MOV.W   #WDTPW+WDTHOLD,&WDTCTL  ; Stop watchdog timer
+
         ;mov.b &P1IN, R4
 
         mov.b #0, instCounter
@@ -186,7 +186,7 @@ fetchloop:
 
 PORT1_ISR
         mov #500, debouncing
-next:   dec.b debouncing
+next:   dec debouncing
         jnz next
 
         bit.b   #00000010b, &P1IFG      ; Test P1IFG to detect if there is
@@ -228,11 +228,11 @@ noStart:
 P1int:
         bic.b   #00000110b, &P1IFG      ; Clear interrupt flag and check
 
-        cmp.b   #1, p1counter
+        cmp.b   #1, R4
         jeq     endint
 
         cmp.b   #1, begin
-        jeq     endint
+        jeq     endAll
 
         call    #clearDisplay
 
@@ -249,10 +249,14 @@ P1int:
 
       reti
 
+endAll:
+      reti
+
 endint:
 
-      mov.b     #0, p1counter
-
+      mov.b     #0, R4
+      call    #clearDisplay
+      call    #cpurum
       reti
 
 clearDisplay:
