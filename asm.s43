@@ -21,7 +21,7 @@
         ORG     0x01C00
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
-        db      0xe6, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
+        db      0xee, 0x3f, 0x6f, 0x9f, 0xc3, 0xc5, 0xcf, 0xd6, 0xff, 9, 10, 0, 0, 0, 0
 runningInDebugger
         db      1
 progCount
@@ -164,20 +164,24 @@ startProgram:
         ;bis     #GIE+LPM0, SR
         ;nop
 
-        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
-        call #recieveInput   ;FOR DEBUGGING PURPOSES
+        
+
+//        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
+//        call #recieveInput   ;FOR DEBUGGING PURPOSES
 
         ;start executing instructions from ram
         MOV.W   #cpuRAM, R7             ; guardar pointer a principio de RAM
 
         clr     R8
-        clr     R9
-        clr     R10
-        clr     R11
-        clr     R12
-        clr     R13
+//        clr     R9
+//        clr     R10
+//        clr     R11
+//        clr     R12
+//        clr     R13
 
         CALL    #fetch
+        mov.b #11100110b, R8
+        mov.b #10101010b, R11
         CALL    #decode
         CALL    #execute
         ; will place function pointer in R9
@@ -752,7 +756,7 @@ output:
         ret
         
 outR1:
-       mov.b R1, R15
+       mov.b R11, R15
        cmp.b #00000000b, R6
        jeq   outputHEX
        cmp.b #00000001b, R6
@@ -763,7 +767,7 @@ outR1:
        ret
 
 outR2:
-       mov.b R2, R15
+       mov.b R12, R15
        cmp.b #00000000b, R6
        jeq   outputHEX
        cmp.b #00000001b, R6
@@ -773,7 +777,7 @@ outR2:
        ret
 
 outR3:
-       mov.b R3, R15
+       mov.b R13, R15
        cmp.b #00000000b, R6
        jeq   outputHEX
        cmp.b #00000001b, R6
@@ -1062,31 +1066,31 @@ mod10:
       ; R6 for result
       ; R14 shift needed
        clr R6
-       mov.b R14, 10100000b
+       mov.b #10100000b, R14 
        call #checkGE
 
-       mov.b R14, 01010000b
+       mov.b #01010000b, R14 
        call #checkGE
 
-       mov.b R14, 00101000b
+       mov.b #00101000b, R14 
        call #checkGE
 
-       mov.b R14, 00010100b
+       mov.b #00010100b, R14 
        call #checkGE
 
-       mov.b R14, 00001010b
+       mov.b #00001010b, R14
        call #checkGE
 
        ret
        ; R5 is the result of the mod
 
 checkGE:
-     cmp.b R5, R14
-     JGE greaterDiv
-     JL  lesserDiv
+     cmp.b R14, R5
+     jhs greaterDiv
+     jlo  lesserDiv
 
 greaterDiv:
-     sub.b R5, R14
+     sub.b R14, R5
      setc
      rlc R6
      ret
