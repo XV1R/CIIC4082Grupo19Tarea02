@@ -80,13 +80,13 @@ UnlockGPIO:
 	BIS.W   #1,&LCDCCTL0
 
         ;Turn on baterry LCD
-        mov.b   #0xFF, &0xA31
-        mov.b   #0xFF, &0xA2D
+       // mov.b   #0xFF, &0xA31
+       // mov.b   #0xFF, &0xA2D
 
         mov     #CCIE, &TA0CCTL0              ; Enable TACCR0 interrupt
         mov     #TASSEL_2+MC_1+ID_3, &TA0CTL  ;Set timer according to next table
         nop
-        mov     #12500, &TA0CCR0
+        mov     #0x0, &TA0CCR0
 
 	nop
         ; Uses SMCLK and up mode
@@ -165,7 +165,8 @@ startProgram:
 
         ;start executing instructions from ram
         MOV.W   #cpuRAM, R7             ; guardar pointer a principio de RAM
-
+      
+      
         clr     R8
 //        clr     R9
 //        clr     R10
@@ -174,10 +175,10 @@ startProgram:
 //        clr     R13
 
         CALL    #fetch
-        mov.b   #11100110b, R8
-        mov.b   #00001111b, R11
+//        mov.b   #11100101b, R8
+//        mov.b   #00111111b, R11
         CALL    #decode
-        call #clearDisplay
+        call    #clearDisplay
         CALL    #execute
         ; will place function pointer in R9
         ;execute instruction stored in R9 after decode
@@ -275,6 +276,10 @@ clearDisplay:
       mov.b     #0x00,&0xA2F
       mov.b     #0x00,&0xA27
       mov.b     #0x00,&0xA28
+      
+      //battery
+      mov.b     #0x00, &0xA31
+      mov.b     #0x00, &0xA2D
 
       ret
 
@@ -835,28 +840,28 @@ checkodd4:
       jeq     addodd4
       ret
 addeven1:
-      add.b #00010000b, R6
-      ret
-addeven2:
-      add.b #00100000b, R6
-      ret
-addeven3:
-      add.b #01000000b, R6
-      ret
-addeven4:
-      add.b #10000000b, R6
-      ret
-addodd1:
       add.b #00010000b, R14
       ret
-addodd2:
-      add.b #00100000b, R14
+addeven2:
+      add.b #10000000b, R14
       ret
-addodd3:
+addeven3:
       add.b #01000000b, R14
       ret
+addeven4:
+      add.b #00100000b, R14
+      ret
+addodd1:
+      add.b #00010000b, R6
+      ret
+addodd2:
+      add.b #10000000b, R6
+      ret
+addodd3:
+      add.b #01000000b, R6
+      ret
 addodd4:
-      add.b #10000000b, R14
+      add.b #00100000b, R14
       ret
 
 outputHEX:
