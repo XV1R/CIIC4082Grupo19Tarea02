@@ -22,12 +22,9 @@
 cpuRAM  ;     INSTRUCTIONS USED TO TEST DECODING
         ; TODO: Cuando movemos valores a registro, padding ocurre por ser 16 bits
         db      0x20, 0x6f, 0xea, 0xcf, 0xf4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-progCount
-        db      0 
-timeoftimer db  0
-runningInDebugger
-        db      0
-                    ;testing
+progCount             db      0 
+timeoftimer           db      0
+runningInDebugger     db      0
 instructionMasks                        ; first 6 bits to AND with and get opcode
         db      0
 
@@ -159,13 +156,7 @@ startProgram:
         ;bis     #GIE+LPM0, SR
         ;nop
 
-
-
-     //   mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
-      //  call #recieveInput   ;FOR DEBUGGING PURPOSES
-
         ;start executing instructions from ram
-        clr     R4
         clr     R5
         clr     R6
         clr     R7
@@ -183,7 +174,9 @@ fetchloop:
         CALL    #fetch
         CALL    #decode
         CALL    #execute
-        cmp.b   #3, progCount
+        cmp.b   #3, progCount     ; testing...
+        jeq $
+        cmp.b   #16, progCount
         jeq $
         jmp     fetchloop
        
