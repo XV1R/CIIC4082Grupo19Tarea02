@@ -83,9 +83,10 @@ UnlockGPIO:
         mov.b   #0xFF, &0xA31
         mov.b   #0xFF, &0xA2D
 
-        mov     #CCIE, &TA0CCTL0        ; Enable TACCR0 interrupt
+        mov     #CCIE, &TA0CCTL0              ; Enable TACCR0 interrupt
         mov     #TASSEL_2+MC_1+ID_3, &TA0CTL  ;Set timer according to next table
-        mov     #62500, &TA0CCR0
+        nop
+        mov     #12500, &TA0CCR0
 
 	nop
         ; Uses SMCLK and up mode
@@ -99,19 +100,12 @@ UnlockGPIO:
         ; Assuming SMLCK = 1 MHz, divider = 8 and period = 0.5 seg
         ; cycles = 62500.  With period = 0.5 LED turn on every 1 second
         ;mov     #62500, &TA0CCR0        ; Set the timer capture compare register 0
-
-//        bic.b   #00000010b, &P1IFG    ; To erase a flag raised before
-                                        ; activating the GIE. This help to
-                                        ; avoid responding to a push on button
-                                        ; previous to program start.
-
-        nop                             ; NOP before setting GIE required by
-                                        ; the architecture
+                              ; the architecture
         bis.w   #GIE,SR 	        ; Interrupts enabled (same as eint)
                                         ; so that the micro reacts to
                                         ; interrupts
         nop
-        ;bis.w     #GIE+LPM0, SR
+        ;bis     #GIE+LPM0, SR
         nop                             ; Wait after setting interrupt bit
 
         ;bis     #LPM0,SR                ; Enter Low Power Mode 0
@@ -164,7 +158,7 @@ startProgram:
         ;bis     #GIE+LPM0, SR
         ;nop
 
-        
+
 
 //        mov.b #00000001B, R5 ;FOR DEBUGGING PURPOSES
 //        call #recieveInput   ;FOR DEBUGGING PURPOSES
@@ -180,9 +174,10 @@ startProgram:
 //        clr     R13
 
         CALL    #fetch
-        mov.b #11100110b, R8
-        mov.b #10101010b, R11
+        mov.b   #11100110b, R8
+        mov.b   #00001111b, R11
         CALL    #decode
+        call #clearDisplay
         CALL    #execute
         ; will place function pointer in R9
         ;execute instruction stored in R9 after decode
@@ -194,27 +189,6 @@ startProgram:
                                         ; (endless loop)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TIMER_A0_ISR:
-        ;xor.b #BIT7, P9OUT
-        ;mov.b instCounter, R13
-
-        ;cmp #5, instCounter
-        ;jnz noToggle
-
-        ;mov #0, instCounter
-        ;mov.b instCounter, R4
-
-        ;cmp.b #1, instrIn
-        ;jeq readInput
-
-        reti
-
-noToggle:
-        ;mov.b instCounter, R4
-        ;inc instCounter
-fin:
-        ;xor 	#CCIE, &TA0CCTL0
-        reti
 
 PORT1_ISR
         mov #500, debouncing
@@ -671,10 +645,10 @@ loopIn:       cmp.b   #5, instCounter
               call #readInput
               ret
 
-readInput:    
+readInput:
               ;mov.b &P1IN, R4
               rra R4
-              
+
               cmp.b #00000001, R5
               jne notinputR1
               mov.b R4, R11
@@ -754,7 +728,7 @@ output:
         cmp.b   #00001100b, R5
         jeq     outR3
         ret
-        
+
 outR1:
        mov.b R11, R15
        cmp.b #00000000b, R6
@@ -792,72 +766,97 @@ outputBI:
 
       mov.b   R15, R5
       bic.b   #11111110b, R5
-      cmp.b   #00000001b, R5
-      jeq     addeven1
+      call    #checkeven1
 
       mov.b   R15, R5
       bic.b   #11111011b, R5
-      cmp.b   #00000100b, R5
-      jeq     addeven2
+      call    #checkeven2
 
       mov.b   R15, R5
       bic.b   #11101111b, R5
-      cmp.b   #00010000b, R5
-      jeq     addeven3
+      call    #checkeven3
 
       mov.b   R15, R5
       bic.b   #10111111b, R5
-      cmp.b   #01000000b, R5
-      jeq     addeven4
+      call    #checkeven4
 
       mov.b   R15, R5
       bic.b   #11111101b, R5
-      cmp.b   #00000010b, R5
-      jeq     addodd1
+      call    #checkodd1
 
       mov.b   R15, R5
       bic.b   #11110111b, R5
-      cmp.b   #00001000b, R5
-      jeq     addodd2
+      call    #checkodd2
 
       mov.b   R15, R5
       bic.b   #11011111b, R5
-      cmp.b   #00100000b, R5
-      jeq     addodd3
+      call    #checkodd3
 
       mov.b   R15, R5
       bic.b   #01111111b, R5
-      cmp.b   #10000000b, R5
-      jeq     addodd4
+      call    #checkodd4
 
       mov.b   R14, &0xA31
       mov.b   R6, &0xA2D
 
       ret
 
+
+checkeven1:
+      cmp.b   #00000001b, R5
+      jeq     addeven1
+      ret
+checkeven2:
+      cmp.b   #00000100b, R5
+      jeq     addeven2
+      ret
+checkeven3:
+      cmp.b   #00010000b, R5
+      jeq     addeven3
+      ret
+checkeven4:
+      cmp.b   #01000000b, R5
+      jeq     addeven4
+      ret
+checkodd1:
+      cmp.b   #00000010b, R5
+      jeq     addodd1
+      ret
+checkodd2:
+      cmp.b   #00001000b, R5
+      jeq     addodd2
+      ret
+checkodd3:
+      cmp.b   #00100000b, R5
+      jeq     addodd3
+      ret
+checkodd4:
+      cmp.b   #10000000b, R5
+      jeq     addodd4
+      ret
 addeven1:
-      add.b R6, 00010000b
+      add.b #00010000b, R6
       ret
 addeven2:
-      add.b R6, 00100000b
+      add.b #00100000b, R6
       ret
 addeven3:
-      add.b R6, 01000000b
+      add.b #01000000b, R6
       ret
 addeven4:
-      add.b R6, 10000000b
+      add.b #10000000b, R6
       ret
 addodd1:
-      add.b R14, 00010000b
+      add.b #00010000b, R14
       ret
 addodd2:
-      add.b R14, 00100000b
+      add.b #00100000b, R14
       ret
 addodd3:
-      add.b R14, 01000000b
+      add.b #01000000b, R14
       ret
 addodd4:
-      add.b R14, 10000000b
+      add.b #10000000b, R14
       ret
 
 outputHEX:
@@ -867,8 +866,9 @@ outputHEX:
        call    #hexRight
        bic.b   #00001111b,R6
        call    #hexLeft
-       
-hexRight:   
+       ret
+
+hexRight:
        cmp.b   #00000000b,R5
        jeq     hexout0R
        cmp.b   #00000001b,R5
@@ -901,9 +901,9 @@ hexRight:
        jeq     hexoutER
        cmp.b   #00001111b,R5
        jeq     hexoutFR
-       
 
-hexLeft:      
+
+hexLeft:
        bic.b   #00001111b,R6
        cmp.b   #00000000b,R6
        jeq     hexout0L
@@ -1041,6 +1041,35 @@ hexoutFL:
      mov.b    #0x8E, &0xA2E ; DISPLAY F
      ret
 
+TIMER_A0_ISR:
+    sub.b #00000001b, R15
+    call #outputDEC
+
+    mov.b R15, R5
+    call #mod10
+    ; R5 has the mod (reminder) and R6 has the result (quoatient)
+    call #printdigitdec1  ; from right to left
+
+    mov.b R6, R5
+    call #mod10
+    ; R5 has the mod (reminder) and R6 has the result (quoatient)
+    call #printdigitdec2
+
+    mov.b R6, R5
+    call #mod10
+    ; R5 has the mod (reminder) and R6 has the result (quoatient)
+    call #printdigitdec3
+    
+    cmp.b #00000000, R15
+    jeq timer0
+
+    reti
+
+timer0:
+    mov   #0, &TA0CCR0
+    reti
+    
+
 outputDEC:
       ; R15 is the number to be displayed
       ; R6 for result
@@ -1061,21 +1090,24 @@ outputDEC:
       ; R5 has the mod (reminder) and R6 has the result (quoatient)
       call #printdigitdec3
 
+      mov   #12500, &TA0CCR0
+      ret
+
 mod10:
       ; R15 is the number to be displayed
       ; R6 for result
       ; R14 shift needed
        clr R6
-       mov.b #10100000b, R14 
+       mov.b #10100000b, R14
        call #checkGE
 
-       mov.b #01010000b, R14 
+       mov.b #01010000b, R14
        call #checkGE
 
-       mov.b #00101000b, R14 
+       mov.b #00101000b, R14
        call #checkGE
 
-       mov.b #00010100b, R14 
+       mov.b #00010100b, R14
        call #checkGE
 
        mov.b #00001010b, R14
@@ -1120,7 +1152,7 @@ printdigitdec1:
        jeq     decout1num8
        cmp.b   #00001001b,R5
        jeq     decout1num9
-       
+
 printdigitdec2:
        cmp.b   #00000000b,R5
        jeq     decout2num0
@@ -1164,7 +1196,7 @@ printdigitdec3:
        jeq     decout3num8
        cmp.b   #00001001b,R5
        jeq     decout3num9
-       
+
 decout1num0:
      mov.b    #0xFC, &0xA23 ; DISPLAY 0
      ret
@@ -1195,7 +1227,7 @@ decout1num8:
 decout1num9:
      mov.b    #0xF7, &0xA23 ; DISPLAY 0
      ret
-     
+
 decout2num0:
      mov.b    #0xFC, &0xA25 ; DISPLAY 0
      ret
@@ -1228,34 +1260,34 @@ decout2num9:
      ret
 
 decout3num0:
-     mov.b    #0xFC, &0xA25 ; DISPLAY 0
+     mov.b    #0xFC, &0xA29 ; DISPLAY 0
      ret
 decout3num1:
-     mov.b    #0x60, &0xA25 ; DISPLAY 0
+     mov.b    #0x60, &0xA29 ; DISPLAY 0
      ret
 decout3num2:
-     mov.b    #0xDB, &0xA25 ; DISPLAY 0
+     mov.b    #0xDB, &0xA29 ; DISPLAY 0
      ret
 decout3num3:
-     mov.b    #0xF3, &0xA25 ; DISPLAY 0
+     mov.b    #0xF3, &0xA29 ; DISPLAY 0
      ret
 decout3num4:
-     mov.b    #0x67, &0xA25 ; DISPLAY 0
+     mov.b    #0x67, &0xA29 ; DISPLAY 0
      ret
 decout3num5:
-     mov.b    #0xB7, &0xA25 ; DISPLAY 0
+     mov.b    #0xB7, &0xA29 ; DISPLAY 0
      ret
 decout3num6:
-     mov.b    #0xBF, &0xA25 ; DISPLAY 0
+     mov.b    #0xBF, &0xA29 ; DISPLAY 0
      ret
 decout3num7:
-     mov.b    #0xE4, &0xA25 ; DISPLAY 0
+     mov.b    #0xE4, &0xA29 ; DISPLAY 0
      ret
 decout3num8:
-     mov.b    #0xFF, &0xA25 ; DISPLAY 0
+     mov.b    #0xFF, &0xA29 ; DISPLAY 0
      ret
 decout3num9:
-     mov.b    #0xF7, &0xA25 ; DISPLAY 0
+     mov.b    #0xF7, &0xA29 ; DISPLAY 0
      ret
 
-        END
+     END
