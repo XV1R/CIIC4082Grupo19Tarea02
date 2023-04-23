@@ -112,8 +112,6 @@ UnlockGPIO:
 
         mov.b   p1counter, R4
 
-        mov.b p1counter, R4
-
         bis.b   #00000110B, &P1IE             ; Enable interrupt at P1.1
         bis.b   #02h, &P1IES            ; Set interrupt on high-to-low
                                         ; transition of P1.1
@@ -1088,7 +1086,7 @@ TIMER_A0_ISR:
 
 timer0:
     mov   #0, &TA0CCR0
-    mov   MC_0, &TA0CTL
+    mov   #MC_0, &TA0CTL
     mov.b #0x00, R5
     call #decout1num0
     call #decout2num0
@@ -1123,6 +1121,8 @@ outputDEC:
       
 startTimer:
      mov.b  R15, timeoftimer
+     mov    #TASSEL_2+MC_1+ID_3, &TA0CTL
+     nop
      mov    #12500, &TA0CCR0
      nop
      ret
