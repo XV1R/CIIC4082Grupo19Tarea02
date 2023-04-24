@@ -174,6 +174,13 @@ startProgram:
        
 
 fetchloop:
+
+               ;Objetivo: Buscar la primera instruccion     
+              ;Precondiciones Program counter    
+              ;Postcondiciones busca instruccion guarda y ejecuta para el proximo fetch 
+
+              ;Angelo Ruiz Rohena  2023
+
         CALL    #fetch
         CALL    #decode
         CALL    #execute
@@ -189,7 +196,10 @@ fetchloop:
         //JMP $                           ; jump to current location '$'
                                         ; (endless loop)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+              ;Objetivo:    Para setear los pins 
+              ;Precondiciones  puertos esten seteados y las interrupciones tambien   
+              ;Postcondiciones Los estados de los pins y resultados del lcd principal 
+              ;Natalia Roldan  2023
 
 PORT1_ISR
         mov.w #500, debouncing
@@ -269,6 +279,10 @@ endint:
       reti
 
 clearDisplay:
+              ;Objetivo: limpiar el display d   
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
 
       mov.b     #0x00,&0xA29
       mov.b     #0x00,&0xA2A
@@ -290,6 +304,11 @@ clearDisplay:
       ret
 
 displayNata:
+
+              ;Objetivo: display nombre de integrantes   
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
 
       add.b     #1, counter
 
@@ -314,6 +333,11 @@ displayNata:
 
 displayXavi:
 
+;Objetivo: display nombre de integrantes   
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
+
       add.b     #1, counter
 
       call      #clearDisplay
@@ -336,7 +360,10 @@ displayXavi:
       reti
 
 displayAngel:
-
+;Objetivo: display nombre de integrantes   
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
       add.b     #1, counter
 
       call      #clearDisplay
@@ -357,7 +384,10 @@ displayAngel:
       reti
 
 displayYani:
-
+;Objetivo: display nombre de integrantes   
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
         mov.b   #1, counter
 
         call    #clearDisplay
@@ -379,6 +409,10 @@ displayYani:
         reti
 
 cpurum:
+;Objetivo: display cpurum 
+              ;Precondiciones   
+              ;Postcondiciones 
+              ;Natalia Roldan  2023
 
         mov.b    #10011100B, &0xA29 ;Create C
         mov.b    #11001111B, &0xA25 ;Create P
@@ -513,6 +547,11 @@ endExecute:
 ;R5 -> Register
 ;R6 -> Address
 load:
+              ;Objetivo: cargar data 
+              ;Precondiciones  cargar data de un lado de la memoria 
+              ;Postcondiciones valor de memoria y al registro 
+              ;  Xavier Yanishka Angelo Ruiz Rohena 2023
+
         cmp.b   #0x00, R5
         jeq     loadR0
         cmp.b   #0x10, R5
@@ -536,6 +575,11 @@ endLoad:
 ;R5 -> Register
 ;R6 -> Address
 store:
+
+              ;Objetivo: Hacer store   
+              ;Precondiciones guardar lo que esta en el registro a memoria 
+              ;Postcondiciones para ejecutar la instruccion que se lee por el upcode  
+              ; Xavier Yanishka Angelo Ruiz Rohena  2023
         cmp.b   #0x00, R5
         jeq     storeR0
         cmp.b   #0x10, R5
@@ -645,6 +689,10 @@ endAdd:
 
 
 recieveInput:
+               ;Objetivo: Inputs de los botones  
+              ;Precondiciones  los pins de los botones estan seteados a imput 
+              ;Postcondiciones escribe a registro imputs de dos bits 
+              ;Natalia Roldan  2023
               mov.b   #00000010b, &0xA22
               cmp.b   #1, runningInDebugger
               jeq     readInput
@@ -661,7 +709,11 @@ loopIn:       cmp.w   #5, instCounter
               call #readInput
               ret
 
-readInput:
+readInput:     
+               ;Objetivo: Inputs de los botones  
+              ;Precondiciones  los pins de los botones estan seteados a imput 
+              ;Postcondiciones escribe a registro imputs de dos bits 
+              ;Natalia Roldan  2023
               mov.b &P1IN, R4
               rra R4
 
@@ -682,6 +734,10 @@ notinputR3:   mov.b #00000000b, &0xA22
               ret
 
 jumpIf30:
+        ;Objetivo: hacer el negado del valor del registro 
+        ;Precondiciones los registros y su valor 
+        ;Postcondiciones el valor del registro editado con el negate 
+        ;xavier 
         cmp.b   #0x0000, R13
         jeq     is30
         ret
@@ -1084,8 +1140,8 @@ hexoutFL:
 
 TIMER_A0_ISR:
               ;Objetivo: timer para setear el temporizador 
-              ;Precondiciones el valor del registro modulado. 
-              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Precondiciones el valor del registro modulado que nos da el valor del registro en decimal. 
+              ;Postcondiciones transmite el valor dado por el registro a el lcd en decimal 
               ;Angelo Ruiz Rohena 
     sub.b #00000001b, timeoftimer
     jeq timer0
@@ -1119,9 +1175,14 @@ timer0:
     
 
 outputDEC:
-      ; R15 is the number to be displayed
-      ; R6 for result
-      ; R5 copy of result
+
+              ;Objetivo: hacer el output del display en la batteria 
+              ;Precondiciones el upcode que se guarda en r5 para ver que tipo de out se usa  
+              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Angelo Ruiz Rohena 
+              ; R15 is the number to be displayed
+              ; R6 for result
+              ; R5 copy of result
       call      #clearDisplay
       mov.b R15, R5
       call #mod10
@@ -1152,6 +1213,11 @@ startTimer:
      ret
 
 mod10:
+
+      ;Objetivo: hacer un divicion  
+      ;Precondiciones nececitamos el valor del registro que lo estamos guardando en r14 y un valor fijo de 10 para convertir de bit a decimal 
+      ;Postcondiciones esto nos da el valor de bit en decimal y lo usa para presentar el valor en el display 
+      ;Angelo Ruiz Rohena 
       ; R15 is the number to be displayed
       ; R6 for result
       ; R14 shift needed
