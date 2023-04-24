@@ -401,14 +401,20 @@ cpurum:
 ; R5 For first function argument
 ; R6 for second (if applicable)
 
-fetch:        ;TODO: progCount doesn't increment properly, consider replacing
+fetch:        ;Objetivo: hacer el fetch de instruccion 
+              ;Precondiciones  el programcounter debe tener el valor correspondiente 
+              ;Postcondiciones para obtener el upcode 
+              ;Angelo Ruiz Rohena 
 
         mov.b     progCount, R7   
         mov.b     cpuRAM(R7), R8       ;move instruction to R8 (IR)
         add       #1, progCount
         ret
 
-decode:
+decode:       ;Objetivo: Hcer un decode  
+              ;Precondiciones  el upcode del registro 8
+              ;Postcondiciones para ejecutar la instruccion que se lee por el upcode  
+              ;Angelo Ruiz Rohena 2023
 
           mov.w   R8, R5                   ; Load mask into register
           bic.b   #00111111b, R5           ; Test bits 15-14 of the opcode
@@ -443,7 +449,7 @@ instruction1100xx:
           cmp.b   #11001100b, R5
           jeq     foundIn
 
-foundLoad:                              ;load address data in reg
+foundLoad:     
         mov.b   R8, R5
         mov.b   R8, R6
         bic.b   #11001111b, R5           ;first argument (register)
@@ -686,6 +692,10 @@ is30:
         ret
 
 negate:
+              ;Objetivo: hacer el negado del valor del registro 
+              ;Precondiciones los registros y su valor 
+              ;Postcondiciones el valor del registro editado con el negate 
+              ;Angelo Ruiz Rohena 
         cmp.b   #0x01, R5
         jeq     negateR1
         cmp.b   #0x02, R5
@@ -710,6 +720,10 @@ negateR3:
         ret
 
 shiftRight:
+              ;Objetivo: mover a la derecha los bits una ves  
+              ;Precondiciones los numeros de los registros 
+              ;Postcondiciones el valor del registro editado con el shift 
+              ;Angelo Ruiz Rohena 
         cmp.b   #0x01, R5
         jeq     shiftRightR1
         cmp.b   #0x02, R5
@@ -731,6 +745,11 @@ shiftRightR3:
         ret
 
 output:
+
+              ;Objetivo: hacer los outputs en pantalla 
+              ;Precondiciones el upcode que se guarda en r5 para ver que tipo de out se usa  
+              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Angelo Ruiz Rohena 
         cmp.b   #00000100b, R5
         jeq     outR1
         cmp.b   #00001000b, R5
@@ -771,6 +790,10 @@ outR3:
        ret
 
 outputBI:
+              ;Objetivo: hacer el output del display en la batteria 
+              ;Precondiciones el upcode que se guarda en r5 para ver que tipo de out se usa  
+              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Angelo Ruiz Rohena 
 
       call      #clearDisplay
       mov.b   #0 , R6    ; even positions
@@ -871,8 +894,12 @@ addodd4:
       add.b #00100000b, R14
       ret
 
-outputHEX:
+outputHEX: 
 
+              ;Objetivo: hacer el output del display al display hex 
+              ;Precondiciones el upcode que se guarda en r5 para ver que tipo de out se usa en este caso seria al hex display  
+              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Angelo Ruiz Rohena 
        call      #clearDisplay 
        mov.b   R15, R5
        mov.b   R15, R6
@@ -1056,6 +1083,10 @@ hexoutFL:
      ret
 
 TIMER_A0_ISR:
+              ;Objetivo: timer para setear el temporizador 
+              ;Precondiciones el valor del registro modulado. 
+              ;Postcondiciones transmite el valor dado por el registro a el lcd 
+              ;Angelo Ruiz Rohena 
     sub.b #00000001b, timeoftimer
     jeq timer0
 
